@@ -1,0 +1,32 @@
+{
+  "name": "invoicegenerator",
+  "version": "1.0.0",
+  "description": "UNSW project GOD BE WITH US ALL",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RuslanAdyghe/InvoiceGenerator.git"
+  },
+  "keywords": [],
+  "author": "Ruslan Stash",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RuslanAdyghe/InvoiceGenerator/issues"
+  },
+  "homepage": "https://github.com/RuslanAdyghe/InvoiceGenerator#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2"
+  }
+}
