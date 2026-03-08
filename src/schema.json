@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InvoiceMetadata",
+  "type": "object",
+  "required": [
+    "ProfileID",
+    "IssueDate",
+    "DueDate",
+    "OrderReference",
+    "Delivery",
+    "PaymentMeans"
+  ],
+  "properties": {
+    "ProfileID": {
+      "type": "string",
+      "description": "UBL profile identifier"
+    },
+    "IssueDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the invoice was issued"
+    },
+    "DueDate": {
+      "type": "string",
+      "format": "date",
+      "description": "Date payment is due"
+    },
+    "OrderReference": {
+      "type": "object",
+      "required": ["ID"],
+      "properties": {
+        "ID": {
+          "type": "string",
+          "description": "Reference to the related order"
+        }
+      }
+    },
+    "Delivery": {
+      "type": "object",
+      "required": ["ActualDeliveryDate"],
+      "properties": {
+        "ActualDeliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "ActualDeliveryTime": {
+          "type": "string",
+          "pattern": "^([01]\\d|2[0-3]):([0-5]\\d):([0-5]\\d)$",
+          "description": "HH:MM:SS format"
+        }
+      }
+    },
+    "PaymentMeans": {
+      "type": "object",
+      "required": ["PaymentMeansCode", "PayeeFinancialAccount"],
+      "properties": {
+        "PaymentMeansCode": {
+          "type": "string",
+          "description": "Code representing payment method (e.g. bank transfer)"
+        },
+        "PaymentDueDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "PayeeFinancialAccount": {
+          "type": "object",
+          "required": ["ID", "Name", "Currency"],
+          "properties": {
+            "ID": {
+              "type": "string",
+              "description": "Bank account number"
+            },
+            "Name": {
+              "type": "string",
+              "description": "Account holder name"
+            },
+            "Currency": {
+              "type": "string",
+              "description": "Account currency (ISO code)"
+            }
+          }
+        }
+      }
+    }
+  }
+}
