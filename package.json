@@ -2,6 +2,7 @@
   "name": "invoicegenerator",
   "version": "1.0.0",
   "description": "UNSW project GOD BE WITH US ALL",
+  "type": "module",
   "main": "index.js",
   "directories": {
     "test": "tests"
@@ -23,7 +24,7 @@
   "homepage": "https://github.com/RuslanAdyghe/InvoiceGenerator#readme",
   "dependencies": {
     "dotenv": "^16.3.1",
-    "express": "^4.18.2",
+    "express": "^4.22.1",
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
