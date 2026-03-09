@@ -28,6 +28,6 @@ function validateSchema(input) {
         return { valid: false, errors: validate.errors.map(e => `${e.instancePath} ${e.message}`) };
     }
 }
-// lols
+// lols 2
 
 export default validateSchema;
