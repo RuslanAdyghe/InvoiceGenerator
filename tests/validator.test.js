@@ -1,22 +1,38 @@
 import validateSchema from "../src/validator.js";
 
-function validInvoice() { // valid invoice example
+function validInvoice() { // valid invoice example for new schema
   return {
     ProfileID: "Profile 1",
     IssueDate: "2024-01-15",
     DueDate: "2024-02-15",
-    OrderReference: { ID: "ORD-001" },
+
+    OrderReference: { 
+      ID: "ORD-001" 
+    },
+
     Delivery: {
       ActualDeliveryDate: "2024-01-14",
       ActualDeliveryTime: "14:30:00"
     },
+
     PaymentMeans: {
       PaymentMeansCode: "30",
+      PaymentDueDate: "2024-02-15", 
       PayeeFinancialAccount: {
         ID: "GB29NWBK60161331926819",
         Name: "Stash Corp",
         Currency: "JOD"
       }
+    },
+
+    Supplier: {
+      Name: "Stash Corp",
+      ID: "SUP-001" 
+    },
+
+    Customer: {
+      Name: "Client Ltd",
+      ID: "CUST-001" 
     }
   };
 }
