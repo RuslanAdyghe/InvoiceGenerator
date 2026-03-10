@@ -25,31 +25,48 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Create Invoice route endpoint
 app.post('/invoices', (req, res) => {
   res.status(201).json({
-    message: "Invoice "
+    message: "Invoice created (placeholder)"
   });
 });
 
+// List Invoices route endpoint
 app.get('/invoices', (req, res) => {
-
+  res.json({
+    invoices: []
+  });
 });
 
-app.get('/invoices/{invoiceId}', (req, res) => {
-
+// Retrieve Invoice route endpoint
+app.get('invoices/:invoiceId', (req, res) => {
+  const { invoiceId } = req.params;
+  res.json({
+    invoiceId,
+    message: 'Invoice retrieved (placeholder)'
+  })
 });
 
-app.put('invoices/{invoiceId}', (req, res) => {
+// Update Invoice route endpoint
+app.put('invoices/:invoiceId', (req, res) => {
+  const { invoiceId } = req.params;
 
+  res.json({
+    invoiceId,
+    message: 'Invoice updated (placeholder)'
+  });
 });
 
-app.delete('invoices/{invoiceId}', (req, res) => {
-  
+// Delete Invoice route endpoint
+app.delete('invoices/:invoiceId', (req, res) => {
+  res.status(204).send();
 })
 
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`)
+  console.log(`Server running at https://localhost:${PORT}`);
+  console.log(`Swagger docs available at http://localhost:${PORT}/docs`);
 });
