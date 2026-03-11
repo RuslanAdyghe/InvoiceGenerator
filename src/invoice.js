@@ -78,3 +78,61 @@ function supplierFragment(supplier) {
 
   return frag;
 }
+
+function customerFragment(customer) {
+  const frag = fragment().ele("cac:AccountingCustomerParty").ele("cac:Party");
+
+  if (customer.ID) {
+    frag.first().first().ele("cbc:CustomerID").txt(customer.ID).up();
+  }
+
+  frag
+    .first()
+    .first()
+    .ele("cac:PartyName")
+    .ele("cbc:Name")
+    .txt(customer.Name)
+    .up()
+    .up();
+
+  return frag;
+}
+function legalMonetaryTotalFragment(legalMonetaryTotal) {
+  const { Currency: currency } = legalMonetaryTotal;
+
+  return fragment()
+    .ele("cac:LegalMonetaryTotal")
+    .ele("cbc:LineExtensionAmount")
+    .att("currencyID", currency)
+    .txt(legalMonetaryTotal.LineExtensionAmount)
+    .up()
+    .ele("cbc:TaxExclusiveAmount")
+    .att("currencyID", currency)
+    .txt(legalMonetaryTotal.TaxExclusiveAmount)
+    .up()
+    .ele("cbc:TaxInclusiveAmount")
+    .att("currencyID", currency)
+    .txt(legalMonetaryTotal.TaxInclusiveAmount)
+    .up()
+    .ele("cbc:AllowanceTotalAmount")
+    .att("currencyID", currency)
+    .txt(legalMonetaryTotal.AllowanceTotalAmount)
+    .up()
+    .ele("cbc:ChargeTotalAmount")
+    .att("currencyID", currency)
+    .txt(legalMonetaryTotal.ChargeTotalAmount)
+    .up()
+    .ele("cbc:PrepaidAmount")
+    .att("currencyID", currency)
+    .txt(legalMonetaryTotal.PrepaidAmount)
+    .up()
+    .ele("cbc:PayableAmount")
+    .att("currencyID", currency)
+    .txt(legalMonetaryTotal.PayableAmount)
+    .up()
+    .up();
+}
+
+function legalMonetaryTotalFragment(LegalMonetaryTotal) {
+  const frag = fragment().ele("LegalMonetaryTotal");
+}
