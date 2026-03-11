@@ -8,6 +8,7 @@
     "DueDate",
     "OrderReference",
     "Delivery",
+    "LegalMonetaryTotal",
     "PaymentMeans",
     "Supplier",
     "Customer"
@@ -88,6 +89,50 @@
               "description": "ISO currency code"
             }
           }
+        }
+      }
+    },
+    "LegalMonetaryTotal": {
+      "type": "object",
+      "required": [
+        "LineExtensionAmount",
+        "TaxExclusiveAmount",
+        "TaxInclusiveAmount",
+        "PayableAmount",
+        "Currency"
+      ],
+      "properties": {
+        "Currency": {
+          "type": "string",
+          "description": "ISO currency code applied to all monetary amounts"
+        },
+        "LineExtensionAmount": {
+          "type": "number",
+          "description": "Sum of all invoice line amounts before tax"
+        },
+        "TaxExclusiveAmount": {
+          "type": "number",
+          "description": "Total amount excluding tax"
+        },
+        "TaxInclusiveAmount": {
+          "type": "number",
+          "description": "Total amount including tax"
+        },
+        "AllowanceTotalAmount": {
+          "type": "number",
+          "description": "Total discounts applied (optional)"
+        },
+        "ChargeTotalAmount": {
+          "type": "number",
+          "description": "Total extra charges applied (optional)"
+        },
+        "PrepaidAmount": {
+          "type": "number",
+          "description": "Amount already paid upfront (optional)"
+        },
+        "PayableAmount": {
+          "type": "number",
+          "description": "Final amount due for payment"
         }
       }
     },

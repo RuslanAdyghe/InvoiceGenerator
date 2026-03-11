@@ -15,4 +15,12 @@ function deliveryFragment(delivery) {
     .ele("cbc:ActualDeliveryDate")
     .txt(delivery.ActualDeliveryDate)
     .up();
+
+  if (delivery.ActualDeliveryTime) {
+    (frag
+      .first()
+      .ele("cbc:ActualDeliveryTime")
+      .txt(delivery.ActualDeliverytime),
+      up());
+  }
 }

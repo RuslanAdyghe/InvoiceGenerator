@@ -1,7 +1,6 @@
 import validateSchema from "../src/validator.js";
 
 function validInvoice() {
-  // valid invoice example for new schema
   return {
     ProfileID: "Profile 1",
     IssueDate: "2024-01-15",
@@ -34,6 +33,17 @@ function validInvoice() {
     Customer: {
       Name: "Client Ltd",
       ID: "CUST-001",
+    },
+
+    LegalMonetaryTotal: {
+      Currency: "EUR",
+      LineExtensionAmount: 1436.5,
+      TaxExclusiveAmount: 1436.5,
+      TaxInclusiveAmount: 1729,
+      AllowanceTotalAmount: 100,
+      ChargeTotalAmount: 100,
+      PrepaidAmount: 1000,
+      PayableAmount: 729,
     },
   };
 }
