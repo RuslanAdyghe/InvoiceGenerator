@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "UNSW project GOD BE WITH US ALL",
   "type": "module",
-  "main": "index.js",
+  "main": "server.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "node server.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest"
   },
   "repository": {
