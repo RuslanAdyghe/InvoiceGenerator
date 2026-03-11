@@ -4,7 +4,7 @@ function orderReferenceFragment(OrderReference) {
   return fragment()
     .ele("cac:OrderReference")
     .ele("cbc:ID")
-    .txt(orderReference.ID)
+    .txt(OrderReference.ID)
     .up()
     .up();
 }
@@ -17,12 +17,14 @@ function deliveryFragment(delivery) {
     .up();
 
   if (delivery.ActualDeliveryTime) {
-    (frag
+    frag
       .first()
       .ele("cbc:ActualDeliveryTime")
-      .txt(delivery.ActualDeliverytime),
-      up());
+      .txt(delivery.ActualDeliverytime)
+      .up();
   }
+
+  return frag;
 }
 
 function paymentMeansFragment(paymentMeans) {
@@ -61,42 +63,29 @@ function paymentMeansFragment(paymentMeans) {
 }
 
 function supplierFragment(supplier) {
-  const frag = fragment().ele("cac:AccountingSupplierParty").ele("cac:Party");
+  const party = fragment().ele("cac:AccountingSupplierParty").ele("cac:Party");
 
   if (supplier.ID) {
-    frag.first().first().ele("cbc:EndpointID").txt(supplier.ID).up();
+    party.ele("cbc:EndpointID").txt(supplier.ID).up();
   }
 
-  frag
-    .first()
-    .first()
-    .ele("cac:PartyName")
-    .ele("cbc:Name")
-    .txt(supplier.Name)
-    .up()
-    .up();
+  party.ele("cac:PartyName").ele("cbc:Name").txt(supplier.Name).up().up();
 
-  return frag;
+  return party.up().up();
 }
 
 function customerFragment(customer) {
-  const frag = fragment().ele("cac:AccountingCustomerParty").ele("cac:Party");
+  const party = fragment().ele("cac:AccountingCustomerParty").ele("cac:Party");
 
   if (customer.ID) {
-    frag.first().first().ele("cbc:CustomerID").txt(customer.ID).up();
+    party.ele("cbc:EndpointID").txt(customer.ID).up();
   }
 
-  frag
-    .first()
-    .first()
-    .ele("cac:PartyName")
-    .ele("cbc:Name")
-    .txt(customer.Name)
-    .up()
-    .up();
+  party.ele("cac:PartyName").ele("cbc:Name").txt(customer.Name).up().up();
 
-  return frag;
+  return party.up().up();
 }
+
 function legalMonetaryTotalFragment(legalMonetaryTotal) {
   const { Currency: currency } = legalMonetaryTotal;
 
@@ -133,6 +122,29 @@ function legalMonetaryTotalFragment(legalMonetaryTotal) {
     .up();
 }
 
-function legalMonetaryTotalFragment(LegalMonetaryTotal) {
-  const frag = fragment().ele("LegalMonetaryTotal");
+function toUBLXml(invoice) {
+  const root = create({ version: "1.0", encoding: "UTF-8" }).ele("Invoice", {
+    xmlns: "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2",
+    "xmlns:cac":
+      "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2",
+    "xmlns:cbc":
+      "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2",
+  });
+
+  // Top level fields
+  root.ele("cbc:ProfileID").txt(invoice.ProfileID).up();
+  root.ele("cbc:IssueDate").txt(invoice.IssueDate).up();
+  root.ele("cbc:DueDate").txt(invoice.DueDate).up();
+
+  // Sections
+  root.import(orderReferenceFragment(invoice.OrderReference));
+  root.import(deliveryFragment(invoice.Delivery));
+  root.import(paymentMeansFragment(invoice.PaymentMeans));
+  root.import(supplierFragment(invoice.Supplier));
+  root.import(customerFragment(invoice.Customer));
+  root.import(legalMonetaryTotalFragment(invoice.LegalMonetaryTotal));
+
+  return root.doc().end({ prettyPrint: true });
 }
+
+export default toUBLXml;
