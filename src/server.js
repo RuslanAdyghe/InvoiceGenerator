@@ -10,7 +10,7 @@ app.use(express.json());
 
 // Serve Swagger UI
 const swaggerPath = path.resolve('../swagger.json');
-const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath))
+const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath));
 
 // Root route endpoint
 app.get('/', (req, res) => {
