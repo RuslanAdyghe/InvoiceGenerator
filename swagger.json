@@ -25,7 +25,7 @@
     "/invoices": {
       "post": {
         "summary": "Create Invoice",
-        "description": "Creates a new UBL XML invoice",
+        "description": "Creates a new structured invoice from input data",
         "requestBody": {
           "required": true,
           "content": {
@@ -51,7 +51,7 @@
             "description": "Missing required fields"
           },
           "404": {
-            "description": "OrderId or CustomerId not found"
+            "description": "Related order or customer not found"
           },
           "500": {
             "description": "Internal server error"
@@ -198,6 +198,79 @@
           }
         }
       }
+    },
+    "/invoices/{invoiceId}/validate": {
+      "post": {
+        "summary": "Validate invoice",
+        "description": "Validates the generated UBL invoice document against the required UBL validation rules and schema to check if it is compliant.",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier for the invoice"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateInvoiceResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "InvoiceId does not exist"
+          },
+          "500": {
+            "description": "Unexpected system failure"
+          }
+        }
+      }
+    },
+    "/invoices/{invoiceId}/transform": {
+      "post": {
+        "summary": "Transform invoice",
+        "description": "Transforms a previously created structured invoice into a UBL XML invoice document.",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier for the invoice"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice successfully transformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransformInvoiceResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "InvoiceId does not exist"
+          },
+          "400": {
+            "description": "Invoice data cannot be transformed into UBL XML"
+          },
+          "500": {
+            "description": "Unexpected system failure"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -205,42 +278,153 @@
       "CreateInvoiceRequest": {
         "type": "object",
         "required": [
-          "orderId",
-          "customerId",
-          "issueDate",
-          "items"
+          "ProfileID",
+          "IssueDate",
+          "DueDate",
+          "OrderReference",
+          "Supplier",
+          "Customer",
+          "LegalMonetaryTotal"
         ],
         "properties": {
-          "orderId": {
+          "ProfileID": {
             "type": "string"
           },
-          "customerId": {
-            "type": "string"
-          },
-          "issueDate": {
+          "IssueDate": {
             "type": "string",
             "format": "date"
           },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/InvoiceItem"
-            }
-          }
-        }
-      },
-      "InvoiceItem": {
-        "type": "object",
-        "required": [
-          "productId",
-          "quantity"
-        ],
-        "properties": {
-          "productId": {
-            "type": "string"
+          "DueDate": {
+            "type": "string",
+            "format": "date"
           },
-          "quantity": {
-            "type": "number"
+          "OrderReference": {
+            "type": "object",
+            "required": [
+              "ID"
+            ],
+            "properties": {
+              "ID": {
+                "type": "string"
+              }
+            }
+          },
+          "Delivery": {
+            "type": "object",
+            "properties": {
+              "ActualDeliveryDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "ActualDeliveryTime": {
+                "type": "string"
+              }
+            }
+          },
+          "PaymentMeans": {
+            "type": "object",
+            "required": [
+              "PaymentMeansCode",
+              "PaymentDueDate",
+              "PayeeFinancialAccount"
+            ],
+            "properties": {
+              "PaymentMeansCode": {
+                "type": "string"
+              },
+              "PaymentDueDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "PayeeFinancialAccount": {
+                "type": "object",
+                "required": [
+                  "ID",
+                  "Name",
+                  "Currency"
+                ],
+                "properties": {
+                  "ID": {
+                    "type": "string"
+                  },
+                  "Name": {
+                    "type": "string"
+                  },
+                  "Currency": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "Supplier": {
+            "type": "object",
+            "required": [
+              "Name",
+              "ID"
+            ],
+            "properties": {
+              "Name": {
+                "type": "string"
+              },
+              "ID": {
+                "type": "string"
+              }
+            }
+          },
+          "Customer": {
+            "type": "object",
+            "required": [
+              "Name",
+              "ID"
+            ],
+            "properties": {
+              "Name": {
+                "type": "string"
+              },
+              "ID": {
+                "type": "string"
+              }
+            }
+          },
+          "LegalMonetaryTotal": {
+            "type": "object",
+            "required": [
+              "Currency",
+              "LineExtensionAmount",
+              "TaxExclusiveAmount",
+              "TaxInclusiveAmount",
+              "AllowanceTotalAmount",
+              "ChargeTotalAmount",
+              "PrepaidAmount",
+              "PayableAmount"
+            ],
+            "properties": {
+              "Currency": {
+                "type": "string"
+              },
+              "LineExtensionAmount": {
+                "type": "number"
+              },
+              "TaxExclusiveAmount": {
+                "type": "number"
+              },
+              "TaxInclusiveAmount": {
+                "type": "number"
+              },
+              "AllowanceTotalAmount": {
+                "type": "number"
+              },
+              "ChargeTotalAmount": {
+                "type": "number"
+              },
+              "PrepaidAmount": {
+                "type": "number"
+              },
+              "PayableAmount": {
+                "type": "number"
+              }
+            }
           }
         }
       },
@@ -269,6 +453,48 @@
             "items": {
               "$ref": "#/components/schemas/InvoiceResponse"
             }
+          }
+        }
+      },
+      "ValidateInvoiceResponse": {
+        "type": "object",
+        "properties": {
+          "invoiceId": {
+            "type": "string"
+          },
+          "valid": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "TransformInvoiceResponse": {
+        "type": "object",
+        "properties": {
+          "invoiceId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "invoiceXML": {
+            "type": "string"
           }
         }
       }
