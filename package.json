@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "UNSW project GOD BE WITH US ALL",
   "type": "module",
-  "main": "index.js",
+  "main": "server.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "node server.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest"
   },
   "repository": {
@@ -27,7 +27,8 @@
     "ajv-formats": "^3.0.1",
     "dotenv": "^16.3.1",
     "express": "^4.22.1",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "xmlbuilder2": "^4.0.3"
   },
   "devDependencies": {
     "jest": "^29.7.0",
