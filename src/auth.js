@@ -2,7 +2,7 @@ import { PutCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
 import db from "./db.js";
 
-async function createUser(UserEmail, companyName) {
+async function createUser(email, companyName) {
   const id = randomUUID();
   await db.send(
     new PutCommand({
@@ -11,7 +11,7 @@ async function createUser(UserEmail, companyName) {
         id,
         email,
         companyName: companyName,
-        created_at: new Date().toISOString,
+        created_at: new Date().toISOString(),
       },
     }),
   );
