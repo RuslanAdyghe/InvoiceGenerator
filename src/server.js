@@ -3,7 +3,9 @@ import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 
-import transformInvoice from 'invoice.js';
+import {
+  transformInvoice
+} from './invoice.js';
 
 const app = express();
 app.use(express.json());
@@ -77,8 +79,7 @@ app.post('/invoices/:invoiceId/validate', (req, res) => {
 app.post('/invoices/:invoiceId/transform', (req, res) => {
   const { invoiceId } = req.params;
 
-  const result = transformInvoice(invoiceId);
-  return res.json(result);
+  return res.json(transformInvoice(invoiceId));
 });
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
