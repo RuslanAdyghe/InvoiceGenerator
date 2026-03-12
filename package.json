@@ -23,6 +23,8 @@
   },
   "homepage": "https://github.com/RuslanAdyghe/InvoiceGenerator#readme",
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1007.0",
+    "@aws-sdk/lib-dynamodb": "^3.1007.0",
     "ajv": "^8.18.0",
     "ajv-formats": "^3.0.1",
     "dotenv": "^16.3.1",
