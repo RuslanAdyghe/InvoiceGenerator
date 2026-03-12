@@ -16,6 +16,6 @@ describe("DynamoDB User Tests", () => {
 
   test("gets user by email", async () => {
     const user = await getUserByEmail("antonio@stashcorp.com");
-    expect(user.company_name).toBe("Stash Corp");
+    expect(user.companyName).toBe("Stash Corp");
   });
 });

@@ -8,7 +8,7 @@ async function createUser(email, companyName) {
     new PutCommand({
       TableName: "Users",
       Item: {
-        id,
+        ID: id,
         email,
         companyName: companyName,
         created_at: new Date().toISOString(),
@@ -22,7 +22,7 @@ async function getUserById(id) {
   const result = await db.send(
     new GetCommand({
       TableName: "Users",
-      Key: { id },
+      Key: { ID: id },
     }),
   );
   return result.Item;
@@ -33,7 +33,8 @@ async function getUserByEmail(email) {
     new QueryCommand({
       TableName: "Users",
       IndexName: "email-index",
-      KeyConditionExpression: "email = :email",
+      KeyConditionExpression: "#email = :email",
+      ExpressionAttributeNames: { "#email": "email" },
       ExpressionAttributeValues: { ":email": email },
     }),
   );
