@@ -6,6 +6,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
 import db from "../db.js";
+import { devNull } from "os";
 
 async function createInvoice(userId, invoiceData) {
   const id = randomUUID();
@@ -34,25 +35,14 @@ async function getInvoiceById(id) {
   return result.Item;
 }
 
-async function getInvoicesByUserId(userId) {
+async function getInvoicesByUserId(userid) {
   const result = await db.send(
     new QueryCommand({
       TableName: "Invoices",
       IndexName: "user_id-index",
       KeyConditionExpression: "user_id = :uid",
-      ExpressionAttributeValues: { ":uid": userId },
+      ExpressionAttributeValues: { ":uid": userid },
     }),
   );
-  return result.Items;
+  return result.Items ?? [];
 }
-
-async function deleteInvoice(id) {
-  await db.send(
-    new DeleteCommand({
-      TableName: "Invoices",
-      Key: { ID: id },
-    }),
-  );
-}
-
-export { createInvoice, getInvoiceById, getInvoicesByUserId, deleteInvoice };
