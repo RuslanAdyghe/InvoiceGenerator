@@ -86,7 +86,7 @@ function customerFragment(customer) {
 function legalMonetaryTotalFragment(legalMonetaryTotal) {
   const { Currency: currency } = legalMonetaryTotal;
 
-  return fragment()
+  return frag = fragment()
     .ele("cac:LegalMonetaryTotal")
     .ele("cbc:LineExtensionAmount")
     .att("currencyID", currency)
@@ -99,24 +99,40 @@ function legalMonetaryTotalFragment(legalMonetaryTotal) {
     .ele("cbc:TaxInclusiveAmount")
     .att("currencyID", currency)
     .txt(legalMonetaryTotal.TaxInclusiveAmount)
-    .up()
-    .ele("cbc:AllowanceTotalAmount")
-    .att("currencyID", currency)
-    .txt(legalMonetaryTotal.AllowanceTotalAmount)
-    .up()
-    .ele("cbc:ChargeTotalAmount")
-    .att("currencyID", currency)
-    .txt(legalMonetaryTotal.ChargeTotalAmount)
-    .up()
-    .ele("cbc:PrepaidAmount")
-    .att("currencyID", currency)
-    .txt(legalMonetaryTotal.PrepaidAmount)
-    .up()
+    .up();
+
+  if (legalMonetaryTotal.AllowanceTotalAmount !== undefined) {
+    frag
+      .ele("cbc:AllowanceTotalAmount")
+      .att("currencyID", currency)
+      .txt(legalMonetaryTotal.AllowanceTotalAmount)
+      .up();
+  }
+  
+  if (legalMonetaryTotal.ChargeTotalAmount !== undefined) {
+    frag
+      .ele("cbc:ChargeTotalAmount")
+      .att("currencyID", currency)
+      .txt(legalMonetaryTotal.ChargeTotalAmount)
+      .up();
+  }
+
+  if (legalMonetaryTotal.PrepaidAmount !== undefined) {
+    frag
+      .ele("cbc:PrepaidAmount")
+      .att("currencyID", currency)
+      .txt(legalMonetaryTotal.PrepaidAmount)
+      .up();
+  }
+  
+  frag
     .ele("cbc:PayableAmount")
     .att("currencyID", currency)
     .txt(legalMonetaryTotal.PayableAmount)
     .up()
     .up();
+
+    return frag;
 }
 
 function toUBLXml(invoice) {
