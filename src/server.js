@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { transformInvoice } from "./XmlConverter.js";
+import {createInvoice, getInvoiceById, getInvoicesByUserId} from "./invoice.js";
 
 const app = express();
 app.use(express.json());
@@ -28,10 +29,14 @@ app.get("/health", (req, res) => {
 });
 
 // Create Invoice route endpoint
-app.post("/invoices", (req, res) => {
-  res.status(201).json({
-    message: "Invoice created (placeholder)",
-  });
+app.post("/invoices", async (req, res, next) => {
+  const { userId, invoiceData } = req.body;
+
+  try {
+    res.status(201).json(await createInvoice(userId, invoiceData));
+  } catch (error) {
+    next(error);
+  }
 });
 
 // List Invoices route endpoint
