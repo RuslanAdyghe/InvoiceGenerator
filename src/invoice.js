@@ -5,7 +5,7 @@ import {
   DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
-import db from "../db.js";
+import db from "./db.js";
 import { devNull } from "os";
 
 async function createInvoice(userId, invoiceData) {
@@ -46,3 +46,5 @@ async function getInvoicesByUserId(userid) {
   );
   return result.Items ?? [];
 }
+
+export { createInvoice, getInvoiceById, getInvoicesByUserId };
