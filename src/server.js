@@ -6,9 +6,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-import {
-  transformInvoice
-} from './invoice.js';
+import { transformInvoice } from "./XmlConverter.js";
 
 const app = express();
 app.use(express.json());
@@ -68,7 +66,7 @@ app.delete("/invoices/:invoiceId", (req, res) => {
 });
 
 // Validate Invoice route endpoint
-app.post('/invoices/:invoiceId/validate', (req, res) => {
+app.post("/invoices/:invoiceId/validate", (req, res) => {
   const { invoiceId } = req.params;
 
   const result = validateInvoice(invoiceId);
@@ -76,7 +74,7 @@ app.post('/invoices/:invoiceId/validate', (req, res) => {
 });
 
 // Transform Invoice route endpoint
-app.post('/invoices/:invoiceId/transform', (req, res) => {
+app.post("/invoices/:invoiceId/transform", (req, res) => {
   const { invoiceId } = req.params;
 
   return res.json(transformInvoice(invoiceId));
