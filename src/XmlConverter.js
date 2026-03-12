@@ -86,7 +86,7 @@ function customerFragment(customer) {
 function legalMonetaryTotalFragment(legalMonetaryTotal) {
   const { Currency: currency } = legalMonetaryTotal;
 
-  return frag = fragment()
+  const frag = fragment()
     .ele("cac:LegalMonetaryTotal")
     .ele("cbc:LineExtensionAmount")
     .att("currencyID", currency)

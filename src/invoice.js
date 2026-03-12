@@ -85,8 +85,9 @@ async function transformInvoice(invoiceId) {
       invoiceXml
     };
   } catch (error) {
+    console.log(error);
     throw createError(500, "Failed to transform invoice");
   }
 }
 
-export { createInvoice, getInvoiceById, getInvoicesByUserId };
+export { createInvoice, getInvoiceById, getInvoicesByUserId, transformInvoice };

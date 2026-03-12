@@ -6,8 +6,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-import { transformInvoice } from "./XmlConverter.js";
-import {createInvoice, getInvoiceById, getInvoicesByUserId} from "./invoice.js";
+import {createInvoice, getInvoiceById, getInvoicesByUserId, transformInvoice} from "./invoice.js";
 
 const app = express();
 app.use(express.json());
@@ -81,10 +80,14 @@ app.post("/invoices/:invoiceId/validate", (req, res) => {
 });
 
 // Transform Invoice route endpoint
-app.post("/invoices/:invoiceId/transform", (req, res) => {
+app.post("/invoices/:invoiceId/transform", async (req, res, next) => {
   const { invoiceId } = req.params;
 
-  return res.json(transformInvoice(invoiceId));
+  try {
+    res.json(await transformInvoice(invoiceId));
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
