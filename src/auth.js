@@ -1,11 +1,12 @@
 import { PutCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { randomUUID } from "crypto";
 import db from "./db.js";
 
 async function createUser(UserEmail, companyName) {
-  const id = crypto.randomUUID();
+  const id = randomUUID();
   await db.send(
     new PutCommand({
-      TableName: "users",
+      TableName: "Users",
       Item: {
         id,
         email,
@@ -20,7 +21,7 @@ async function createUser(UserEmail, companyName) {
 async function getUserById(id) {
   const result = await db.send(
     new GetCommand({
-      TableName: "users",
+      TableName: "Users",
       Key: { id },
     }),
   );
@@ -30,7 +31,7 @@ async function getUserById(id) {
 async function getUserByEmail(email) {
   const result = await db.send(
     new QueryCommand({
-      TableName: "users",
+      TableName: "Users",
       IndexName: "email-index",
       KeyConditionExpression: "email = :email",
       ExpressionAttributeValues: { ":email": email },
