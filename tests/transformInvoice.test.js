@@ -1,4 +1,4 @@
-import { transformInvoice } from '../src/transformInvoice';
+import { transformInvoice } from "../src/transformInvoice";
 
 function validInvoice() {
   return {
