@@ -3,6 +3,8 @@ import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 
+import transformInvoice from 'invoice.js';
+
 const app = express();
 app.use(express.json());
 
@@ -61,7 +63,23 @@ app.put('invoices/:invoiceId', (req, res) => {
 // Delete Invoice route endpoint
 app.delete('invoices/:invoiceId', (req, res) => {
   res.status(204).send();
-})
+});
+
+// Validate Invoice route endpoint
+app.post('/invoices/:invoiceId/validate', (req, res) => {
+  const { invoiceId } = req.params;
+
+  const result = validateInvoice(invoiceId);
+  return res.json(result);
+});
+
+// Transform Invoice route endpoint
+app.post('/invoices/:invoiceId/transform', (req, res) => {
+  const { invoiceId } = req.params;
+
+  const result = transformInvoice(invoiceId);
+  return res.json(result);
+});
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
