@@ -47,12 +47,14 @@ app.get("/invoices", (req, res) => {
 });
 
 // Retrieve Invoice route endpoint
-app.get("/invoices/:invoiceId", (req, res) => {
+app.get("/invoices/:invoiceId", async (req, res, next) => {
   const { invoiceId } = req.params;
-  res.json({
-    invoiceId,
-    message: "Invoice retrieved (placeholder)",
-  });
+
+  try {
+    res.status(200).json(await getInvoiceById(invoiceId));
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Update Invoice route endpoint

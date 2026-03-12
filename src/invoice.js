@@ -46,6 +46,10 @@ async function getInvoiceById(id) {
       Key: { ID: id },
     }),
   );
+
+  if (!result.Item) {
+    throw createError(404, "Invoice not found");
+  }
   return result.Item;
 }
 
