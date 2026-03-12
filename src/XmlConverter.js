@@ -18,9 +18,8 @@ function deliveryFragment(delivery) {
 
   if (delivery.ActualDeliveryTime) {
     frag
-      .first()
       .ele("cbc:ActualDeliveryTime")
-      .txt(delivery.ActualDeliverytime)
+      .txt(delivery.ActualDeliveryTime)
       .up();
   }
 
@@ -38,14 +37,12 @@ function paymentMeansFragment(paymentMeans) {
 
   if (paymentMeans.PaymentDueDate) {
     frag
-      .first()
       .ele("cbc:PaymentDueDate")
       .txt(paymentMeans.PaymentDueDate)
       .up();
   }
 
   frag
-    .first()
     .ele("cac:PayeeFinancialAccount")
     .ele("cbc:ID")
     .txt(pfa.ID)
