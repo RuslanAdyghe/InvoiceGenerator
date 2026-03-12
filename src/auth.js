@@ -1,5 +1,5 @@
 import { PutCommand, GetCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
-import db from "../db.js";
+import db from "./db.js";
 
 async function createUser(UserEmail, companyName) {
   const id = crypto.randomUUID();
