@@ -59,7 +59,7 @@ app.put('/invoices/:invoiceId', (req, res) => {
 });
 
 // Delete Invoice route endpoint
-app.delete('invoices/:invoiceId', (req, res) => {
+app.delete('/invoices/:invoiceId', (req, res) => {
   res.status(204).send();
 })
 
