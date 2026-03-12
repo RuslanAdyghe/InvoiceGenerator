@@ -2,14 +2,14 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 app.use(express.json());
 
-// API Routes will be here
-
-// Serve Swagger UI
-const swaggerPath = path.resolve('../swagger.json');
+const swaggerPath = path.join(__dirname, '../swagger.json');
 const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath));
 
 // Root route endpoint
@@ -40,7 +40,7 @@ app.get('/invoices', (req, res) => {
 });
 
 // Retrieve Invoice route endpoint
-app.get('invoices/:invoiceId', (req, res) => {
+app.get('/invoices/:invoiceId', (req, res) => {
   const { invoiceId } = req.params;
   res.json({
     invoiceId,
@@ -49,7 +49,7 @@ app.get('invoices/:invoiceId', (req, res) => {
 });
 
 // Update Invoice route endpoint
-app.put('invoices/:invoiceId', (req, res) => {
+app.put('/invoices/:invoiceId', (req, res) => {
   const { invoiceId } = req.params;
 
   res.json({
