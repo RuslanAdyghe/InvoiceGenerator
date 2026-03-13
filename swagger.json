@@ -277,152 +277,149 @@
     "schemas": {
       "CreateInvoiceRequest": {
         "type": "object",
-        "required": [
-          "ProfileID",
-          "IssueDate",
-          "DueDate",
-          "OrderReference",
-          "Supplier",
-          "Customer",
-          "LegalMonetaryTotal"
-        ],
+        "required": ["userId", "invoiceData"],
         "properties": {
-          "ProfileID": {
+          "userId": {
             "type": "string"
           },
-          "IssueDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "DueDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "OrderReference": {
+          "invoiceData": {
             "type": "object",
             "required": [
-              "ID"
+              "ProfileID",
+              "IssueDate",
+              "DueDate",
+              "OrderReference",
+              "Supplier",
+              "Customer",
+              "LegalMonetaryTotal"
             ],
             "properties": {
-              "ID": {
+              "ProfileID": {
                 "type": "string"
-              }
-            }
-          },
-          "Delivery": {
-            "type": "object",
-            "properties": {
-              "ActualDeliveryDate": {
+              },
+              "IssueDate": {
                 "type": "string",
                 "format": "date"
               },
-              "ActualDeliveryTime": {
-                "type": "string"
-              }
-            }
-          },
-          "PaymentMeans": {
-            "type": "object",
-            "required": [
-              "PaymentMeansCode",
-              "PaymentDueDate",
-              "PayeeFinancialAccount"
-            ],
-            "properties": {
-              "PaymentMeansCode": {
-                "type": "string"
-              },
-              "PaymentDueDate": {
+              "DueDate": {
                 "type": "string",
                 "format": "date"
               },
-              "PayeeFinancialAccount": {
+              "OrderReference": {
                 "type": "object",
-                "required": [
-                  "ID",
-                  "Name",
-                  "Currency"
-                ],
+                "required": ["ID"],
                 "properties": {
                   "ID": {
                     "type": "string"
+                  }
+                }
+              },
+              "Delivery": {
+                "type": "object",
+                "properties": {
+                  "ActualDeliveryDate": {
+                    "type": "string",
+                    "format": "date"
                   },
-                  "Name": {
-                    "type": "string"
-                  },
-                  "Currency": {
+                  "ActualDeliveryTime": {
                     "type": "string"
                   }
                 }
-              }
-            }
-          },
-          "Supplier": {
-            "type": "object",
-            "required": [
-              "Name",
-              "ID"
-            ],
-            "properties": {
-              "Name": {
-                "type": "string"
               },
-              "ID": {
-                "type": "string"
-              }
-            }
-          },
-          "Customer": {
-            "type": "object",
-            "required": [
-              "Name",
-              "ID"
-            ],
-            "properties": {
-              "Name": {
-                "type": "string"
+              "PaymentMeans": {
+                "type": "object",
+                "required": [
+                  "PaymentMeansCode",
+                  "PaymentDueDate",
+                  "PayeeFinancialAccount"
+                ],
+                "properties": {
+                  "PaymentMeansCode": {
+                    "type": "string"
+                  },
+                  "PaymentDueDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "PayeeFinancialAccount": {
+                    "type": "object",
+                    "required": ["ID", "Name", "Currency"],
+                    "properties": {
+                      "ID": {
+                        "type": "string"
+                      },
+                      "Name": {
+                        "type": "string"
+                      },
+                      "Currency": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
               },
-              "ID": {
-                "type": "string"
-              }
-            }
-          },
-          "LegalMonetaryTotal": {
-            "type": "object",
-            "required": [
-              "Currency",
-              "LineExtensionAmount",
-              "TaxExclusiveAmount",
-              "TaxInclusiveAmount",
-              "AllowanceTotalAmount",
-              "ChargeTotalAmount",
-              "PrepaidAmount",
-              "PayableAmount"
-            ],
-            "properties": {
-              "Currency": {
-                "type": "string"
+              "Supplier": {
+                "type": "object",
+                "required": ["Name", "ID"],
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "ID": {
+                    "type": "string"
+                  }
+                }
               },
-              "LineExtensionAmount": {
-                "type": "number"
+              "Customer": {
+                "type": "object",
+                "required": ["Name", "ID"],
+                "properties": {
+                  "Name": {
+                    "type": "string"
+                  },
+                  "ID": {
+                    "type": "string"
+                  }
+                }
               },
-              "TaxExclusiveAmount": {
-                "type": "number"
-              },
-              "TaxInclusiveAmount": {
-                "type": "number"
-              },
-              "AllowanceTotalAmount": {
-                "type": "number"
-              },
-              "ChargeTotalAmount": {
-                "type": "number"
-              },
-              "PrepaidAmount": {
-                "type": "number"
-              },
-              "PayableAmount": {
-                "type": "number"
+              "LegalMonetaryTotal": {
+                "type": "object",
+                "required": [
+                  "Currency",
+                  "LineExtensionAmount",
+                  "TaxExclusiveAmount",
+                  "TaxInclusiveAmount",
+                  "AllowanceTotalAmount",
+                  "ChargeTotalAmount",
+                  "PrepaidAmount",
+                  "PayableAmount"
+                ],
+                "properties": {
+                  "Currency": {
+                    "type": "string"
+                  },
+                  "LineExtensionAmount": {
+                    "type": "number"
+                  },
+                  "TaxExclusiveAmount": {
+                    "type": "number"
+                  },
+                  "TaxInclusiveAmount": {
+                    "type": "number"
+                  },
+                  "AllowanceTotalAmount": {
+                    "type": "number"
+                  },
+                  "ChargeTotalAmount": {
+                    "type": "number"
+                  },
+                  "PrepaidAmount": {
+                    "type": "number"
+                  },
+                  "PayableAmount": {
+                    "type": "number"
+                  }
+                }
               }
             }
           }
@@ -435,12 +432,6 @@
             "type": "string"
           },
           "status": {
-            "type": "string"
-          },
-          "totalAmount": {
-            "type": "number"
-          },
-          "invoiceXml": {
             "type": "string"
           }
         }
@@ -475,9 +466,7 @@
       },
       "ValidationError": {
         "type": "object",
-        "required": [
-          "message"
-        ],
+        "required": ["message"],
         "properties": {
           "message": {
             "type": "string"
@@ -493,7 +482,7 @@
           "status": {
             "type": "string"
           },
-          "invoiceXML": {
+          "invoiceXml": {
             "type": "string"
           }
         }
