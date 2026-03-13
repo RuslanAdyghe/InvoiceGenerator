@@ -116,6 +116,12 @@ app.post("/auth/login", async (req, res, next) => {
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+app.use((err, req, res, next) => {
+  const status = err.status ?? 500;
+  const message = err.message ?? "Internal server error";
+  res.status(status).json({ error: message });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server running at https://localhost:${PORT}`);
