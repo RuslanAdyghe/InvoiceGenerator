@@ -7,10 +7,10 @@ import {
 import { randomUUID } from "crypto";
 import db from "./db.js";
 import { devNull } from "os";
-import createError from 'http-errors';
-
+import createError from "http-errors";
 
 import toUBLXml from "./XmlConverter.js";
+import { uploadXml } from "./s3.js";
 
 async function createInvoice(userId, invoiceData) {
   if (!userId || !invoiceData) {
@@ -18,6 +18,7 @@ async function createInvoice(userId, invoiceData) {
   }
 
   const id = randomUUID();
+  const xmlS3Key = `invoices/${id}.xml`;
 
   try {
     await db.send(
@@ -26,6 +27,7 @@ async function createInvoice(userId, invoiceData) {
         Item: {
           ID: id,
           user_id: userId,
+          xmlS3Key: xmlS3Key,
           invoice_data: invoiceData,
           status: "created",
           created_at: new Date().toISOString(),
@@ -70,7 +72,7 @@ async function transformInvoice(invoiceId) {
     new GetCommand({
       TableName: "Invoices",
       Key: { ID: invoiceId },
-    })
+    }),
   );
 
   if (!result.Item) {
@@ -79,10 +81,11 @@ async function transformInvoice(invoiceId) {
 
   try {
     const invoiceXml = toUBLXml(result.Item.invoice_data);
+    await uploadXml(invoiceId, invoiceXml);
     return {
       invoiceId,
       status: "transformed",
-      invoiceXml
+      invoiceXml,
     };
   } catch (error) {
     console.log(error);

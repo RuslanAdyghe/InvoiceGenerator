@@ -76,7 +76,6 @@ describe("DynamoDB Invoice tests", () => {
 
   test("gets invoice by ID", async () => {
     const invoice = await getInvoiceById(invoiceId);
-    console.log("Invoice by ID:", JSON.stringify(invoice, null, 2));
     expect(invoice).toBeDefined();
     expect(invoice.ID).toBe(invoiceId);
   });
@@ -85,12 +84,11 @@ describe("DynamoDB Invoice tests", () => {
     const invoices = await getInvoicesByUserId(
       "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
     );
-    console.log("Invoices by user ID:", JSON.stringify(invoices, null, 2));
     expect(invoices).toBeDefined();
     expect(invoices.length).toBeGreaterThan(0);
   });
 
-  test("transforms an invoice into UBL XML", async () => { 
+  test("transforms an invoice into UBL XML", async () => {
     const result = await transformInvoice(invoiceId);
     expect(result.invoiceId).toBe(invoiceId);
     expect(result.status).toBe("transformed");
@@ -109,5 +107,5 @@ describe("DynamoDB Invoice tests", () => {
     expect(result.invoiceXml).toContain("<cbc:ProfileID>");
     expect(result.invoiceXml).toContain("<cbc:IssueDate>");
     expect(result.invoiceXml).toContain("<cac:AccountingSupplierParty>");
-  });  
+  });
 });
