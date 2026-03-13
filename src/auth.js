@@ -4,6 +4,8 @@ import db from "./db.js";
 import jwt from "jsonwebtoken";
 import createError from "http-errors";
 
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
+
 async function createUser(email, password, companyName) {
   const existing = await getUserByEmail(email);
   if (existing) {
