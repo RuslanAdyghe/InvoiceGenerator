@@ -6,7 +6,7 @@ import {
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3 = new S3Client({ region: "ap-southeast-2" });
-const BUCKET = "invoicegenerator-xml";
+const BUCKET = "invoicegenerator-xml-652698422419-ap-southeast-2-an";
 
 export async function uploadXml(invoiceId, xmlString) {
   const key = `invoices/${invoiceId}.xml`;
