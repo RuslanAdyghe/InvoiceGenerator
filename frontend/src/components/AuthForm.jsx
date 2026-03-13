@@ -6,8 +6,9 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [companyName, setCompanyName] = useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
 
     if (!email || !password) {
       alert("Email and password are required");
@@ -19,7 +20,31 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
       return;
     }
 
-    navigate("/dashboard");
+    try {
+      const endpoint = showConfirmPassword ? "/auth/signup" : "/auth/login";
+      const body = showConfirmPassword
+        ? { email, password, companyName }
+        : { email, password };
+
+      const response = await fetch(`http://localhost:3000${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body), 
+      });
+
+      const data = await response.json(); 
+
+      if (!response.ok) {
+        alert(data.message || "Something went wrong");  
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.userId);
+      navigate("/dashboard");
+    } catch (error) {
+      alert("Failed to connect to server");
+      return;
+    }
   }
 
   return (
@@ -34,6 +59,15 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
         onChange={(e) => setEmail(e.target.value)}
         className="border border-gray-300 rounded-md p-2 mb-4"
       />
+      {showConfirmPassword && ( 
+        <input
+          type="text"
+          placeholder="companyName"
+          value={companyName}
+          onChange={(e) => setCompanyName(e.target.value)}
+          className="border border-gray-300 rounded-md p-2 mb-4"
+        />
+      )}
       <input
         type="password"
         placeholder="Password"
