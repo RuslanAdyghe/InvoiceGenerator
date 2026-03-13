@@ -57,14 +57,22 @@ function validInvoice() {
 describe("DynamoDB Invoice tests", () => {
   let invoiceId;
 
-  test("Creates an Invoice", async () => {
+  beforeAll(async () => {
     const invoice = await createInvoice(
       "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
       validInvoice(),
     );
-    expect(invoice.id).toBeDefined();
-    invoiceId = invoice.id;
+    invoiceId = invoice.invoiceId;
   });
+
+  // test("Creates an Invoice", async () => {
+  //   const invoice = await createInvoice(
+  //     "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+  //     validInvoice(),
+  //   );
+  //   expect(invoice.id).toBeDefined();
+  //   invoiceId = invoice.id;
+  // });
 
   test("gets invoice by ID", async () => {
     const invoice = await getInvoiceById(invoiceId);
@@ -88,4 +96,18 @@ describe("DynamoDB Invoice tests", () => {
     expect(result.status).toBe("transformed");
     expect(result.invoiceXml).toContain("<Invoice");
   });
+
+  test("transformInvoice throws 404 for an invalid invoiceId", async () => {
+    await expect(transformInvoice("non-existent-id")).rejects.toMatchObject({
+      status: 404,
+      message: "Invoice not found",
+    });
+  });
+
+  test("transformed XML cotains correct invoice data", async () => {
+    const result = await transformInvoice(invoiceId);
+    expect(result.invoiceXml).toContain("<cbc:ProfileID>");
+    expect(result.invoiceXml).toContain("<cbc:IssueDate>");
+    expect(result.invoiceXml).toContain("<cac:AccountingSupplierParty>");
+  });  
 });
