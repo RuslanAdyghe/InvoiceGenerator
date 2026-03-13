@@ -1,7 +1,7 @@
 import { uploadXml, getXmlUrl } from "../src/s3.js";
 import toUBLXml from "../src/XmlConverter.js";
 import { getInvoicesByUserId } from "../src/invoice.js";
-
+import { transformInvoice } from "../src/invoice.js";
 function validInvoice() {
   return {
     ProfileID: "Profile 1",
@@ -62,9 +62,9 @@ describe("S3 Tests", () => {
     expect(invoices.length).toBeGreaterThan(0);
 
     const invoice = invoices[0];
-
-    // use the s3 key from the invoice to get a presigned URL
-    const url = await getXmlUrl(invoice.xml_s3_key);
+    let transformed = await transformInvoice(invoice.ID);
+    console.log("Transformed:", transformed);
+    const url = await getXmlUrl(invoice.xmlS3Key);
     expect(url).toBeDefined();
     console.log("Presigned URL:", url);
   });

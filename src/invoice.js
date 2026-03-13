@@ -8,9 +8,9 @@ import { randomUUID } from "crypto";
 import db from "./db.js";
 import { devNull } from "os";
 import createError from "http-errors";
-import { uploadXml, getXmlUrl } from "./s3.js";
 
 import toUBLXml from "./XmlConverter.js";
+import { uploadXml } from "./s3.js";
 
 async function createInvoice(userId, invoiceData) {
   if (!userId || !invoiceData) {
@@ -18,14 +18,7 @@ async function createInvoice(userId, invoiceData) {
   }
 
   const id = randomUUID();
-  let xmlS3Key;
-  try {
-    const xml = toUBLXml(invoiceData);
-    xmlS3Key = await uploadXml(id, xml);
-  } catch (error) {
-    console.error("S3 upload error:", error);
-    throw createError(500, "Failed to upload invoice XML");
-  }
+  const xmlS3Key = `invoices/${id}.xml`;
 
   try {
     await db.send(
@@ -34,15 +27,14 @@ async function createInvoice(userId, invoiceData) {
         Item: {
           ID: id,
           user_id: userId,
+          xmlS3Key: xmlS3Key,
           invoice_data: invoiceData,
-          xml_s3_key: xmlS3Key,
           status: "created",
           created_at: new Date().toISOString(),
         },
       }),
     );
-  } catch (error) {
-    console.error("DynamoDB error:", error);
+  } catch {
     throw createError(500, "Failed to create invoice");
   }
 
@@ -89,6 +81,7 @@ async function transformInvoice(invoiceId) {
 
   try {
     const invoiceXml = toUBLXml(result.Item.invoice_data);
+    await uploadXml(invoiceId, invoiceXml);
     return {
       invoiceId,
       status: "transformed",
