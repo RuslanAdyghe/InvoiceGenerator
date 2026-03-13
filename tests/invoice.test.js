@@ -3,6 +3,7 @@ import {
   createInvoice,
   getInvoiceById,
   getInvoicesByUserId,
+  transformInvoice,
 } from "../src/invoice";
 
 function validInvoice() {
@@ -79,5 +80,12 @@ describe("DynamoDB Invoice tests", () => {
     console.log("Invoices by user ID:", JSON.stringify(invoices, null, 2));
     expect(invoices).toBeDefined();
     expect(invoices.length).toBeGreaterThan(0);
+  });
+
+  test("transforms an invoice into UBL XML", async () => { 
+    const result = await transformInvoice(invoiceId);
+    expect(result.invoiceId).toBe(invoiceId);
+    expect(result.status).toBe("transformed");
+    expect(result.invoiceXml).toContain("<Invoice");
   });
 });
