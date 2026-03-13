@@ -26,7 +26,7 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
         ? { email, password, companyName }
         : { email, password };
 
-      const response = await fetch(`http://ec2-3-25-217-34.ap-southeast-2.compute.amazonaws.com:3000${endpoint}`, {
+      const response = await fetch(`http://localhost:3000${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body), 
@@ -35,14 +35,16 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
       const data = await response.json(); 
 
       if (!response.ok) {
-        alert(data.message || "Something went wrong");  
+        alert(data.error || "Something went wrong");  
+        return;
       }
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.userId);
       navigate("/dashboard");
     } catch (error) {
-      alert("Failed to connect to server");
+      console.log(error);
+      alert(error.message || "Failed to connect to server");
       return;
     }
   }
