@@ -47,11 +47,12 @@ function validInvoice() {
 describe("Send Invoice Email Tests", () => {
   let invoiceId;
   let userId;
+  let testEmail;
 
   beforeAll(async () => {
-    const user = await createUser("testerinvoice443@gmail.com", "Stash Corp");
-    userId = user.id;
-
+    testEmail = `test+${Date.now()}@gmail.com`;
+    const user = await createUser(testEmail,"password123", "Stash Corp");
+    userId = user.userId;
     const invoice = await createInvoice(userId, validInvoice());
     invoiceId = invoice.invoiceId;
   });
@@ -60,7 +61,7 @@ describe("Send Invoice Email Tests", () => {
     const result = await sendInvoiceEmail(invoiceId);
     expect(result.success).toBe(true);
     expect(result.invoiceId).toBe(invoiceId);
-    expect(result.to).toBe("testerinvoice443@gmail.com");
+    expect(result.to).toBe(testEmail);
     expect(result.messageId).toBeDefined();
   }, 15000);
 
