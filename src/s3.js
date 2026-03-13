@@ -8,7 +8,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 const s3 = new S3Client({ region: "ap-southeast-2" });
 const BUCKET = "invoicegenerator-xml-652698422419-ap-southeast-2-an";
 
-export async function uploadXml(invoiceId, xmlString) {
+async function uploadXml(invoiceId, xmlString) {
   const key = `invoices/${invoiceId}.xml`;
   await s3.send(
     new PutObjectCommand({
@@ -21,10 +21,12 @@ export async function uploadXml(invoiceId, xmlString) {
   return key;
 }
 
-export async function getXmlUrl(key) {
+async function getXmlUrl(key) {
   const command = new GetObjectCommand({
     Bucket: BUCKET,
     Key: key,
   });
   return await getSignedUrl(s3, command, { expiresIn: 3600 });
 }
+
+export { getXmlUrl, uploadXml };
