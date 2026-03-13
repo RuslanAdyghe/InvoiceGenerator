@@ -42,16 +42,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InvoiceResponse"
+                  "$ref": "#/components/schemas/CreateInvoiceResponse"
                 }
               }
             }
           },
           "400": {
             "description": "Missing required fields"
-          },
-          "404": {
-            "description": "Related order or customer not found"
           },
           "500": {
             "description": "Internal server error"
@@ -101,6 +98,7 @@
     "/invoices/{invoiceId}": {
       "get": {
         "summary": "Retrieve invoice",
+        "description": "Retrieves a previously created invoice by its unique ID, returning all stored invoice data.",
         "parameters": [
           {
             "name": "invoiceId",
@@ -108,7 +106,8 @@
             "required": true,
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Unique identifier for the invoice"
           }
         ],
         "responses": {
@@ -262,9 +261,6 @@
           },
           "404": {
             "description": "InvoiceId does not exist"
-          },
-          "400": {
-            "description": "Invoice data cannot be transformed into UBL XML"
           },
           "500": {
             "description": "Unexpected system failure"
@@ -425,7 +421,7 @@
           }
         }
       },
-      "InvoiceResponse": {
+      "CreateInvoiceResponse": {
         "type": "object",
         "properties": {
           "invoiceId": {
@@ -433,6 +429,27 @@
           },
           "status": {
             "type": "string"
+          }
+        }
+      },
+      "InvoiceResponse": {
+        "type": "object",
+        "properties": {
+          "ID": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "invoice_data": {
+            "type": "object"
           }
         }
       },
