@@ -3,10 +3,12 @@ import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import "dotenv/config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import {createInvoice, getInvoiceById, getInvoicesByUserId, transformInvoice} from "./invoice.js";
+import {createUser, loginUser} from "./auth.js";
 
 const app = express();
 app.use(express.json());
@@ -85,6 +87,26 @@ app.post("/invoices/:invoiceId/transform", async (req, res, next) => {
 
   try {
     res.json(await transformInvoice(invoiceId));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/auth/signup", async (req, res, next) => {
+  const { email, password, companyName } = req.body;
+
+  try {
+    res.status(201).json(await createUser(email, password, companyName));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/auth/login", async (req, res, next) => {
+  const { email, password } = req.body;
+
+  try {
+    res.json(await loginUser(email, password));
   } catch (error) {
     next(error);
   }
