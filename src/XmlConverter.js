@@ -86,7 +86,7 @@ function customerFragment(customer) {
 function legalMonetaryTotalFragment(legalMonetaryTotal) {
   const { Currency: currency } = legalMonetaryTotal;
 
-  return frag = fragment()
+  const frag = fragment()
     .ele("cac:LegalMonetaryTotal")
     .ele("cbc:LineExtensionAmount")
     .att("currencyID", currency)
@@ -158,32 +158,6 @@ function toUBLXml(invoice) {
   root.import(legalMonetaryTotalFragment(invoice.LegalMonetaryTotal));
 
   return root.doc().end({ prettyPrint: true });
-}
-
-export function transformInvoice(invoiceId) {
-  const data = getData();
-  const invoice = data.invoices.find((inv) => inv.invoiceId === invoiceId);
-
-  if (!invoice) {
-    throw HTTPError(404, "Invoice not found");
-  }
-
-  const validationResult = validateSchema(invoice);
-  if (!validationResult.valid) {
-    throw HTTPError(400, "Invoice data cannot be transformed into UBL XML");
-  }
-
-  try {
-    const invoiceXml = toUBLXml(invoice);
-
-    return {
-      invoiceId,
-      status: "transformed",
-      invoiceXml
-    }
-  } catch (error) {
-    throw HTTPError(500, "Unexpected system failure");
-  }
 }
 
 export default toUBLXml;

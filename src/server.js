@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-import { transformInvoice } from "./XmlConverter.js";
+import {createInvoice, getInvoiceById, getInvoicesByUserId, transformInvoice} from "./invoice.js";
 
 const app = express();
 app.use(express.json());
@@ -28,10 +28,14 @@ app.get("/health", (req, res) => {
 });
 
 // Create Invoice route endpoint
-app.post("/invoices", (req, res) => {
-  res.status(201).json({
-    message: "Invoice created (placeholder)",
-  });
+app.post("/invoices", async (req, res, next) => {
+  const { userId, invoiceData } = req.body;
+
+  try {
+    res.status(201).json(await createInvoice(userId, invoiceData));
+  } catch (error) {
+    next(error);
+  }
 });
 
 // List Invoices route endpoint
@@ -42,12 +46,14 @@ app.get("/invoices", (req, res) => {
 });
 
 // Retrieve Invoice route endpoint
-app.get("/invoices/:invoiceId", (req, res) => {
+app.get("/invoices/:invoiceId", async (req, res, next) => {
   const { invoiceId } = req.params;
-  res.json({
-    invoiceId,
-    message: "Invoice retrieved (placeholder)",
-  });
+
+  try {
+    res.status(200).json(await getInvoiceById(invoiceId));
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Update Invoice route endpoint
@@ -74,10 +80,14 @@ app.post("/invoices/:invoiceId/validate", (req, res) => {
 });
 
 // Transform Invoice route endpoint
-app.post("/invoices/:invoiceId/transform", (req, res) => {
+app.post("/invoices/:invoiceId/transform", async (req, res, next) => {
   const { invoiceId } = req.params;
 
-  return res.json(transformInvoice(invoiceId));
+  try {
+    res.json(await transformInvoice(invoiceId));
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
