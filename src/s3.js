@@ -47,4 +47,4 @@ async function downloadXml(invoiceId) {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-export { getXmlUrl, uploadXm, downloadXml };
+export { getXmlUrl, uploadXml, downloadXml };
