@@ -11,6 +11,9 @@
     "start": "node server.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest"
   },
+  "jest": {
+    "setupFiles": ["dotenv/config"]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RuslanAdyghe/InvoiceGenerator.git"
@@ -33,6 +36,7 @@
     "dotenv": "^16.3.1",
     "express": "^4.22.1",
     "http-errors": "^2.0.1",
+    "nodemailer": "^8.0.2",
     "swagger-ui-express": "^5.0.1",
     "xmlbuilder2": "^4.0.3"
   },
