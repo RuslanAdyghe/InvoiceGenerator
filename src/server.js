@@ -3,6 +3,7 @@ import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import cors from "cors";
 import "dotenv/config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -12,6 +13,7 @@ import {createUser, loginUser} from "./auth.js";
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 const swaggerPath = path.join(__dirname, "../swagger.json");
 const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath));

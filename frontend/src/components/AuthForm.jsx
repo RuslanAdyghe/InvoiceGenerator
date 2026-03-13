@@ -26,7 +26,7 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
         ? { email, password, companyName }
         : { email, password };
 
-      const response = await fetch(`http://localhost:3000${endpoint}`, {
+      const response = await fetch(`http://ec2-3-25-217-34.ap-southeast-2.compute.amazonaws.com:3000${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body), 
