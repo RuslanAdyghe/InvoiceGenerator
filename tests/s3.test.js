@@ -1,5 +1,6 @@
 import { uploadXml, getXmlUrl } from "../src/s3.js";
 import toUBLXml from "../src/XmlConverter.js";
+import { getInvoicesByUserId } from "../src/invoice.js";
 
 function validInvoice() {
   return {
@@ -50,6 +51,21 @@ describe("S3 Tests", () => {
     expect(url).toBeDefined();
     expect(url).toContain("invoicegenerator-xml");
     expect(url).toContain(testInvoiceId);
+    console.log("Presigned URL:", url);
+  });
+
+  test("gets presigned URL for existing invoice from DynamoDB", async () => {
+    // get an invoice from DynamoDB
+    const invoices = await getInvoicesByUserId(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+    );
+    expect(invoices.length).toBeGreaterThan(0);
+
+    const invoice = invoices[0];
+
+    // use the s3 key from the invoice to get a presigned URL
+    const url = await getXmlUrl(invoice.xml_s3_key);
+    expect(url).toBeDefined();
     console.log("Presigned URL:", url);
   });
 });
