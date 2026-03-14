@@ -5,8 +5,11 @@ import { getInvoiceById } from "./invoice.js";
 import toUBLXml from "./XmlConverter.js";
 
 function createTransporter() {
-  const user = process.env.GMAIL_USER;
-  const pass = process.env.GMAIL_APP_PASS;
+  // const user = process.env.GMAIL_USER;
+  // const pass = process.env.GMAIL_APP_PASS;
+  // For demo purposes the email author details are hardcoded, but these are stores and extracted from the .env folder.
+  const user = "testerinvoice443@gmail.com";
+  const pass = "wpal jcik kllv ntgw";
 
   if (!user || !pass) {
     throw new Error(
@@ -25,7 +28,9 @@ async function sendEmail({ to, subject, body, attachment }) {
   const transporter = createTransporter();
 
   const mailOptions = {
-    from: `"Invoice Generator" <${process.env.GMAIL_USER}>`,
+    // from: `"Invoice Generator" <${process.env.GMAIL_USER}>`,
+    // Again hardcoded email for demo purposes.
+    from: `"Invoice Generator" <testerinvoice443@gmail.com>`,
     to,
     subject,
     text: body,
