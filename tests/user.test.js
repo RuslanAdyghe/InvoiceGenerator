@@ -2,20 +2,20 @@ import { createUser, getUserById, getUserByEmail } from "../src/auth.js";
 
 describe("DynamoDB User Tests", () => {
   let userId;
-
+  const testEmail = `test-${Date.now()}@stashcorp.com`;
   test("creates a user", async () => {
-    const user = await createUser("antonio@stashcorp.com", "Stash Corp");
-    expect(user.id).toBeDefined();
-    userId = user.id;
+    const user = await createUser(testEmail, "password123", "Stash Corp");
+    expect(user.userId).toBeDefined();
+    userId = user.userId;
   });
 
   test("gets user by ID", async () => {
     const user = await getUserById(userId);
-    expect(user.email).toBe("antonio@stashcorp.com");
+    expect(user.email).toBe(testEmail);
   });
 
   test("gets user by email", async () => {
     const user = await getUserByEmail("antonio@stashcorp.com");
-    expect(user.companyName).toBe("Stash Corp");
+    expect(user.companyName).toBe("DONT DELETE");
   });
 });

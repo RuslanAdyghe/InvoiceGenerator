@@ -3,14 +3,18 @@ import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import cors from "cors";
+import "dotenv/config";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import {createInvoice, getInvoiceById, getInvoicesByUserId, transformInvoice} from "./invoice.js";
 import { validateInvoice } from "./validateInvoice.js";
+import {createUser, loginUser} from "./auth.js";
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 const swaggerPath = path.join(__dirname, "../swagger.json");
 const swaggerDocument = JSON.parse(fs.readFileSync(swaggerPath));
@@ -94,7 +98,33 @@ app.post("/invoices/:invoiceId/transform", async (req, res, next) => {
   }
 });
 
+app.post("/auth/signup", async (req, res, next) => {
+  const { email, password, companyName } = req.body;
+
+  try {
+    res.status(201).json(await createUser(email, password, companyName));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/auth/login", async (req, res, next) => {
+  const { email, password } = req.body;
+
+  try {
+    res.json(await loginUser(email, password));
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+app.use((err, req, res, next) => {
+  const status = err.status ?? 500;
+  const message = err.message ?? "Internal server error";
+  res.status(status).json({ error: message });
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {

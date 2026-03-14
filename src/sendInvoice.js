@@ -42,7 +42,6 @@ async function sendEmail({ to, subject, body, attachment }) {
 
   const info = await transporter.sendMail(mailOptions);
 
-  console.log(`[Email] Sent to ${to} — Message ID: ${info.messageId}`);
   return { success: true, to, messageId: info.messageId };
 }
 

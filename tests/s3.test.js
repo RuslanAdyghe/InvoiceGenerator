@@ -51,7 +51,6 @@ describe("S3 Tests", () => {
     expect(url).toBeDefined();
     expect(url).toContain("invoicegenerator-xml");
     expect(url).toContain(testInvoiceId);
-    console.log("Presigned URL:", url);
   });
 
   test("gets presigned URL for existing invoice from DynamoDB", async () => {
@@ -63,9 +62,7 @@ describe("S3 Tests", () => {
 
     const invoice = invoices[0];
     let transformed = await transformInvoice(invoice.ID);
-    console.log("Transformed:", transformed);
     const url = await getXmlUrl(invoice.xmlS3Key);
     expect(url).toBeDefined();
-    console.log("Presigned URL:", url);
   });
 });
