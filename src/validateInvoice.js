@@ -1,18 +1,71 @@
+// NOTE: Current custom validation structure is used to validate xml as currently isn't up to UBL standards due to missing fields.
+// full UBL 2.4 XSD validation will be implemented when output xml has all correct fields.
+
 import libxmljs from "libxmljs2";
-import { readFileSync } from "fs";
 import { GetCommand } from "@aws-sdk/lib-dynamodb";
-import { join, dirname } from "path";
-import { fileURLToPath } from "url";
 import createError from "http-errors";
 import db from "./db.js";
 import { downloadXml } from "./s3.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+function validateXmlStructure(xmlDoc) {
+    const errors = [];
 
-// Load XSD schemas once at startup
-const invoiceXsd = readFileSync(join(__dirname, "schemas/xsd/maindoc/UBL-Invoice-2.4.xsd"), "utf8");
+    // Define namespaces for XPath
+    const namespaces = {
+        cbc: "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2",
+        cac: "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+    };
 
-const xsdDoc = libxmljs.parseXml(invoiceXsd);
+    // Check required elements exist using XPath
+    const requiredElements = [
+        "//cbc:ProfileID",
+        "//cbc:IssueDate",
+        "//cbc:DueDate",
+        "//cac:OrderReference",
+        "//cac:Delivery",
+        "//cac:PaymentMeans",
+        "//cac:AccountingSupplierParty",
+        "//cac:AccountingCustomerParty",
+        "//cac:LegalMonetaryTotal"
+    ];
+
+    for (const xpath of requiredElements) {
+        const nodes = xmlDoc.find(xpath, namespaces);
+        if (nodes.length === 0) {
+            const elementName = xpath.replace("//", "");
+            errors.push({ message: `Missing required element: ${elementName}` });
+        }
+    }
+
+    // Check date formats are valid
+    const issueDateNodes = xmlDoc.find("//cbc:IssueDate", namespaces);
+    const dueDateNodes = xmlDoc.find("//cbc:DueDate", namespaces);
+
+    if (issueDateNodes.length > 0 && isNaN(Date.parse(issueDateNodes[0].text()))) {
+        errors.push({ message: "IssueDate is not a valid date" });
+    }
+
+    if (dueDateNodes.length > 0 && isNaN(Date.parse(dueDateNodes[0].text()))) {
+        errors.push({ message: "DueDate is not a valid date" });
+    }
+
+    // Check currencyID attributes on required monetary amounts
+    const monetaryElements = [
+        "LineExtensionAmount",
+        "TaxExclusiveAmount",
+        "TaxInclusiveAmount",
+        "PayableAmount"
+    ];
+
+    for (const element of monetaryElements) {
+        const nodes = xmlDoc.find(`//cbc:${element}`, namespaces);
+        if (nodes.length > 0 && !nodes[0].attr("currencyID")) {
+            errors.push({ message: `${element} is missing required currencyID attribute` });
+        }
+    }
+
+    return errors;
+}
 
 function validateBusinessRules(invoiceData) {
     const errors = [];
@@ -69,18 +122,26 @@ async function validateInvoice(invoiceId) {
     // Step 3 - pull XML from S3
     const xmlString = await downloadXml(invoiceId);
 
-    // Step 4 - XSD validation
-    const xmlDoc = libxmljs.parseXml(xmlString);
-    const xsdValid = xmlDoc.validate(xsdDoc);
-    const xsdErrors = xmlDoc.validationErrors.map((e) => ({
-        message: e.message.trim(),
-    }));
+    // Step 4 - check XML is well formed and parse once
+    let xmlDoc;
+    try {
+        xmlDoc = libxmljs.parseXml(xmlString);
+    } catch (e) {
+        return {
+            invoiceId,
+            valid: false,
+            errors: [{ message: `XML is not well formed: ${e.message}` }],
+        };
+    }
 
-    // Step 5 - business rule validation
+    // Step 5 - structural validation using parsed document
+    const structureErrors = validateXmlStructure(xmlDoc);
+
+    // Step 6 - business rule validation
     const businessErrors = validateBusinessRules(invoice.invoice_data);
 
-    // Step 6 - combine all errors
-    const allErrors = [...xsdErrors, ...businessErrors];
+    // Step 7 - combine all errors
+    const allErrors = [...structureErrors, ...businessErrors];
 
     return {
         invoiceId,

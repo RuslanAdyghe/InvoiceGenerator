@@ -50,7 +50,7 @@ function validInvoice() {
 }
 
 describe("Validate Invoice tests", () => {
-    let InvoiceId;
+    let invoiceId;
 
     beforeAll(async () => {
         // Create and transform invoice before running validate tests
@@ -58,6 +58,7 @@ describe("Validate Invoice tests", () => {
             "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
             validInvoice(),
         );
+
         invoiceId = invoice.invoiceId;
         await transformInvoice(invoiceId);
     });
