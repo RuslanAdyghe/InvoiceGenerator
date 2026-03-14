@@ -224,6 +224,9 @@
               }
             }
           },
+          "400": {
+            "description": "Invoice has not been transformed yet"
+          },
           "404": {
             "description": "InvoiceId does not exist"
           },

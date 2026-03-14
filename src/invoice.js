@@ -3,6 +3,7 @@ import {
   GetCommand,
   QueryCommand,
   DeleteCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { randomUUID } from "crypto";
 import db from "./db.js";
@@ -82,6 +83,18 @@ async function transformInvoice(invoiceId) {
   try {
     const invoiceXml = toUBLXml(result.Item.invoice_data);
     await uploadXml(invoiceId, invoiceXml);
+
+    // Update status in Dynamodb
+    await db.send(
+      new UpdateCommand({
+        TableName: "Invoices",
+        Key: { ID: invoiceId },
+        UpdateExpression: "SET #status = :status",
+        ExpressionAttributeNames: { "#status": "status" },
+        ExpressionAttributeValues: { ":status": "transformed" },
+      }),
+    );
+
     return {
       invoiceId,
       status: "transformed",

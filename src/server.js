@@ -9,6 +9,7 @@ import "dotenv/config";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import {createInvoice, getInvoiceById, getInvoicesByUserId, transformInvoice} from "./invoice.js";
+import { validateInvoice } from "./validateInvoice.js";
 import {createUser, loginUser} from "./auth.js";
 
 const app = express();
@@ -76,11 +77,14 @@ app.delete("/invoices/:invoiceId", (req, res) => {
 });
 
 // Validate Invoice route endpoint
-app.post("/invoices/:invoiceId/validate", (req, res) => {
-  const { invoiceId } = req.params;
-
-  const result = validateInvoice(invoiceId);
-  return res.json(result);
+app.post("/invoices/:invoiceId/validate", async (req, res, next) => {
+  try {
+    const { invoiceId } = req.params;
+    const result = await validateInvoice(invoiceId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Transform Invoice route endpoint

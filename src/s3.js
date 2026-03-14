@@ -29,4 +29,22 @@ async function getXmlUrl(key) {
   return await getSignedUrl(s3, command, { expiresIn: 3600 });
 }
 
-export { getXmlUrl, uploadXml };
+async function downloadXml(invoiceId) {
+  const key = `invoices/${invoiceId}.xml`;
+  const response = await s3.send(
+    new GetObjectCommand({
+      Bucket: BUCKET,
+      Key: key,
+    })
+  );
+
+  // Convert the S3 stream to a string
+  const stream = response.Body;
+  const chunks = [];
+  for await (const chunk of stream) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
+export { getXmlUrl, uploadXml, downloadXml };
