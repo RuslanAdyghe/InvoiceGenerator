@@ -13,6 +13,7 @@ import {
   getInvoiceById,
   getInvoicesByUserId,
   transformInvoice,
+  deleteInvoice,
 } from "./invoice.js";
 import { validateInvoice } from "./validateInvoice.js";
 import { createUser, loginUser } from "./auth.js";
@@ -75,11 +76,6 @@ app.put("/invoices/:invoiceId", (req, res) => {
     invoiceId,
     message: "Invoice updated (placeholder)",
   });
-});
-
-// Delete Invoice route endpoint
-app.delete("/invoices/:invoiceId", (req, res) => {
-  res.status(204).send();
 });
 
 // Validate Invoice route endpoint

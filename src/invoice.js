@@ -11,7 +11,7 @@ import { devNull } from "os";
 import createError from "http-errors";
 
 import toUBLXml from "./XmlConverter.js";
-import { uploadXml } from "./s3.js";
+import { uploadXml, deleteXml } from "./s3.js";
 
 async function createInvoice(userId, invoiceData) {
   if (!userId || !invoiceData) {
@@ -134,4 +134,10 @@ async function deleteInvoice(invoiceId) {
   return { invoiceId, status: "deleted" };
 }
 
-export { createInvoice, getInvoiceById, getInvoicesByUserId, transformInvoice };
+export {
+  createInvoice,
+  getInvoiceById,
+  getInvoicesByUserId,
+  transformInvoice,
+  deleteInvoice,
+};
