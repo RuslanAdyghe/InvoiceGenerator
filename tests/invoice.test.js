@@ -1,4 +1,3 @@
-import { create } from "xmlbuilder2";
 import {
   createInvoice,
   getInvoiceById,
@@ -65,15 +64,6 @@ describe("DynamoDB Invoice tests", () => {
     invoiceId = invoice.invoiceId;
   });
 
-  // test("Creates an Invoice", async () => {
-  //   const invoice = await createInvoice(
-  //     "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
-  //     validInvoice(),
-  //   );
-  //   expect(invoice.id).toBeDefined();
-  //   invoiceId = invoice.id;
-  // });
-
   test("gets invoice by ID", async () => {
     const invoice = await getInvoiceById(invoiceId);
     expect(invoice).toBeDefined();
@@ -102,10 +92,69 @@ describe("DynamoDB Invoice tests", () => {
     });
   });
 
-  test("transformed XML cotains correct invoice data", async () => {
+  test("transformed XML contains correct invoice data", async () => {
     const result = await transformInvoice(invoiceId);
     expect(result.invoiceXml).toContain("<cbc:ProfileID>");
     expect(result.invoiceXml).toContain("<cbc:IssueDate>");
     expect(result.invoiceXml).toContain("<cac:AccountingSupplierParty>");
+  });
+});
+
+describe("createInvoice validation tests", () => {
+
+  test("throws 400 when userId is missing", async () => {
+    await expect(createInvoice(null, validInvoice())).rejects.toMatchObject({
+      status: 400,
+      message: "userId and invoiceData are required",
+    });
+  });
+
+  test("throws 400 when invoiceData is missing", async () => {
+    await expect(
+      createInvoice("18eebbc2-8162-4bdd-b272-dd47dc81e7a8", null)
+    ).rejects.toMatchObject({
+      status: 400,
+      message: "userId and invoiceData are required",
+    });
+  });
+
+  test("throws 400 when both userId and invoiceData are missing", async () => {
+    await expect(createInvoice(null, null)).rejects.toMatchObject({
+      status: 400,
+      message: "userId and invoiceData are required",
+    });
+  });
+
+  test("returns invoiceId and status on success", async () => {
+    const result = await createInvoice(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+      validInvoice(),
+    );
+    expect(result.invoiceId).toBeDefined();
+    expect(result.status).toBe("created");
+  });
+});
+
+describe("getInvoiceById validation tests", () => {
+
+  test("throws 404 for non existent invoice", async () => {
+    await expect(getInvoiceById("non-existent-id")).rejects.toMatchObject({
+      status: 404,
+      message: "Invoice not found",
+    });
+  });
+});
+
+describe("transformInvoice validation tests", () => {
+
+  test("throws 500 when invoice data cannot be transformed", async () => {
+    const invoice = await createInvoice(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+      { invalid: "data" },
+    );
+    await expect(transformInvoice(invoice.invoiceId)).rejects.toMatchObject({
+      status: 500,
+      message: "Failed to transform invoice",
+    });
   });
 });

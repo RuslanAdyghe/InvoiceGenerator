@@ -103,3 +103,75 @@ describe("Validate Invoice tests", () => {
     });
 });
 
+describe("Business rule validation tests", () => {
+    let invoiceId;
+
+    beforeAll(async () => {
+        const invoice = await createInvoice(
+            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+            validInvoice(),
+        );
+        invoiceId = invoice.invoiceId;
+        await transformInvoice(invoiceId);
+    });
+
+    test("returns error when TaxInclusiveAmount is less than TaxExclusiveAmount", async () => {
+        const badInvoice = validInvoice();
+        badInvoice.LegalMonetaryTotal.TaxInclusiveAmount = 100;
+        badInvoice.LegalMonetaryTotal.TaxExclusiveAmount = 200;
+        badInvoice.LegalMonetaryTotal.PayableAmount = 100;
+
+        const invoice = await createInvoice(
+            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+            badInvoice,
+        );
+        await transformInvoice(invoice.invoiceId);
+        const result = await validateInvoice(invoice.invoiceId);
+        expect(result.valid).toBe(false);
+        expect(result.errors.some(e => e.message.includes("TaxInclusiveAmount"))).toBe(true);
+    });
+
+    test("returns error when PayableAmount is incorrect", async () => {
+        const badInvoice = validInvoice();
+        badInvoice.LegalMonetaryTotal.PayableAmount = 999;
+
+        const invoice = await createInvoice(
+            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+            badInvoice,
+        );
+        await transformInvoice(invoice.invoiceId);
+        const result = await validateInvoice(invoice.invoiceId);
+        expect(result.valid).toBe(false);
+        expect(result.errors.some(e => e.message.includes("PayableAmount"))).toBe(true);
+    });
+
+    test("returns error when DueDate is before IssueDate", async () => {
+        const badInvoice = validInvoice();
+        badInvoice.IssueDate = "2024-06-01";
+        badInvoice.DueDate = "2024-01-01";
+
+        const invoice = await createInvoice(
+            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+            badInvoice,
+        );
+        await transformInvoice(invoice.invoiceId);
+        const result = await validateInvoice(invoice.invoiceId);
+        expect(result.valid).toBe(false);
+        expect(result.errors.some(e => e.message.includes("DueDate"))).toBe(true);
+    });
+
+    test("returns error when currency is inconsistent", async () => {
+        const badInvoice = validInvoice();
+        badInvoice.LegalMonetaryTotal.Currency = "USD";
+        badInvoice.PaymentMeans.PayeeFinancialAccount.Currency = "EUR";
+
+        const invoice = await createInvoice(
+            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+            badInvoice,
+        );
+        await transformInvoice(invoice.invoiceId);
+        const result = await validateInvoice(invoice.invoiceId);
+        expect(result.valid).toBe(false);
+        expect(result.errors.some(e => e.message.includes("Currency mismatch"))).toBe(true);
+    });
+});
