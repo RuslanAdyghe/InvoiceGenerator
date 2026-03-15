@@ -8,9 +8,15 @@ import cors from "cors";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-import {createInvoice, getInvoiceById, getInvoicesByUserId, transformInvoice} from "./invoice.js";
+import {
+  createInvoice,
+  getInvoiceById,
+  getInvoicesByUserId,
+  transformInvoice,
+} from "./invoice.js";
 import { validateInvoice } from "./validateInvoice.js";
-import {createUser, loginUser} from "./auth.js";
+import { createUser, loginUser } from "./auth.js";
+import { downloadXml } from "./s3.js";
 
 const app = express();
 app.use(express.json());
@@ -93,6 +99,22 @@ app.post("/invoices/:invoiceId/transform", async (req, res, next) => {
 
   try {
     res.json(await transformInvoice(invoiceId));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/invoices/:invoiceId/download", async (req, res, next) => {
+  const { invoiceId } = req.params;
+
+  try {
+    const xml = await downloadXml(invoiceId);
+    res.set("Content-Type", "application/xml");
+    res.set(
+      "Content-Disposition",
+      `attachment; filename="invoice-${invoiceId}.xml"`,
+    );
+    res.send(xml);
   } catch (error) {
     next(error);
   }
