@@ -8,7 +8,7 @@
     "test": "tests"
   },
   "scripts": {
-    "start": "node server.js",
+    "start": "node src/server.js",
     "test": "node --experimental-vm-modules node_modules/.bin/jest"
   },
   "jest": {
