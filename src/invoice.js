@@ -106,4 +106,32 @@ async function transformInvoice(invoiceId) {
   }
 }
 
+async function deleteInvoice(invoiceId) {
+  const result = await db.send(
+    new GetCommand({
+      TableName: "Invoices",
+      Key: { ID: invoiceId },
+    }),
+  );
+
+  if (!result.Item) {
+    throw createError(404, "Invoice not found");
+  }
+
+  // delete from S3
+  if (result.Item.xmlS3Key) {
+    await deleteXml(result.Item.xmlS3Key);
+  }
+
+  // delete from DynamoDB
+  await db.send(
+    new DeleteCommand({
+      TableName: "Invoices",
+      Key: { ID: invoiceId },
+    }),
+  );
+
+  return { invoiceId, status: "deleted" };
+}
+
 export { createInvoice, getInvoiceById, getInvoicesByUserId, transformInvoice };
