@@ -7,22 +7,15 @@ import toUBLXml from "./XmlConverter.js";
 function createTransporter() {
   // const user = process.env.GMAIL_USER;
   // const pass = process.env.GMAIL_APP_PASS;
-  // For demo purposes the email author details are hardcoded, but these are stores and extracted from the .env folder.
+  // For demo purposes the email author details are hardcoded, but these are stored and extracted from the .env folder.
   const user = "testerinvoice443@gmail.com";
   const pass = "wpal jcik kllv ntgw";
-
-  if (!user || !pass) {
-    throw new Error(
-      "Missing Gmail credentials. Set GMAIL_USER and GMAIL_APP_PASS in your .env file."
-    );
-  }
 
   return nodemailer.createTransport({
     service: "gmail",
     auth: { user, pass },
   });
 }
-
 
 async function sendEmail({ to, subject, body, attachment }) {
   const transporter = createTransporter();
@@ -34,19 +27,19 @@ async function sendEmail({ to, subject, body, attachment }) {
     to,
     subject,
     text: body,
-    ...(attachment && {
-      attachments: [
-        {
-          filename: attachment.filename,
-          content: attachment.content,
-          contentType: attachment.contentType,
-        },
-      ],
-    }),
   };
 
-  const info = await transporter.sendMail(mailOptions);
+  if (attachment) {
+    mailOptions.attachments = [
+      {
+        filename: attachment.filename,
+        content: attachment.content,
+        contentType: attachment.contentType,
+      },
+    ];
+  }
 
+  const info = await transporter.sendMail(mailOptions);
   return { success: true, to, messageId: info.messageId };
 }
 
@@ -56,25 +49,14 @@ async function sendInvoiceEmail(invoiceId) {
   }
 
   const invoice = await getInvoiceById(invoiceId);
-
   const user = await getUserById(invoice.user_id);
-  if (!user) {
-    throw new Error(`No user found for user_id: ${invoice.user_id}`);
-  }
-
   const customerEmail = user.email;
-  if (!customerEmail) {
-    throw new Error(`User ${invoice.user_id} has no email address`);
-  }
 
   const xmlContent = toUBLXml(invoice.invoice_data);
-
   const customerName = invoice.invoice_data?.Customer?.Name ?? "Customer";
   const issueDate = invoice.invoice_data?.IssueDate ?? "N/A";
-  const payable =
-    invoice.invoice_data?.LegalMonetaryTotal?.PayableAmount ?? "N/A";
-  const currency =
-    invoice.invoice_data?.LegalMonetaryTotal?.Currency ?? "";
+  const payable = invoice.invoice_data?.LegalMonetaryTotal?.PayableAmount ?? "N/A";
+  const currency = invoice.invoice_data?.LegalMonetaryTotal?.Currency ?? "";
 
   const result = await sendEmail({
     to: customerEmail,
