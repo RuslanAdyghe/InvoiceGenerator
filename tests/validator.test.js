@@ -59,4 +59,24 @@ describe("Input Validation Tests", () => {
     const result = validateSchema(JSON.stringify(validInvoice()));
     expect(result.valid).toBe(true);
   });
+
+  test("rejects invalid JSON string", () => {
+    const result = validateSchema("this is not json");
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain("Invalid JSON");
+  });
+
+  test("rejects invoice missing required fields", () => {
+    const result = validateSchema({ ProfileID: "Profile 1" });
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
+
+  test("rejects invoice with invalid date format", () => {
+    const invoice = validInvoice();
+    invoice.IssueDate = "not-a-date";
+    const result = validateSchema(invoice);
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
 });
