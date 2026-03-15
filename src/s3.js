@@ -35,7 +35,7 @@ async function downloadXml(invoiceId) {
     new GetObjectCommand({
       Bucket: BUCKET,
       Key: key,
-    })
+    }),
   );
 
   // Convert the S3 stream to a string
@@ -45,6 +45,15 @@ async function downloadXml(invoiceId) {
     chunks.push(chunk);
   }
   return Buffer.concat(chunks).toString("utf8");
+}
+
+export async function deleteXml(key) {
+  await s3.send(
+    new DeleteObjectCommand({
+      Bucket: BUCKET,
+      Key: key,
+    }),
+  );
 }
 
 export { getXmlUrl, uploadXml, downloadXml };
