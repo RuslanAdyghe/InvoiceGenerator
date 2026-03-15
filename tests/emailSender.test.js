@@ -1,4 +1,4 @@
-import { sendInvoiceEmail } from "../src/sendInvoice.js";
+import { sendInvoiceEmail, sendEmail } from "../src/sendInvoice.js";
 import { createInvoice } from "../src/invoice.js";
 import { createUser } from "../src/auth.js";
 
@@ -50,8 +50,8 @@ describe("Send Invoice Email Tests", () => {
   let testEmail;
 
   beforeAll(async () => {
-    testEmail = `test+${Date.now()}@gmail.com`;
-    const user = await createUser(testEmail,"password123", "Stash Corp");
+    testEmail = `uniquetest+${Date.now()}@gmail.com`;
+    const user = await createUser(testEmail, "password123", "Stash Corp");
     userId = user.userId;
     const invoice = await createInvoice(userId, validInvoice());
     invoiceId = invoice.invoiceId;
@@ -75,4 +75,14 @@ describe("Send Invoice Email Tests", () => {
   test("throws an error when invoiceId is missing", async () => {
     await expect(sendInvoiceEmail()).rejects.toThrow("invoiceId is required");
   });
+
+  test("sends email without attachment", async () => {
+    const result = await sendEmail({
+      to: testEmail,
+      subject: "Test",
+      body: "Test body",
+    });
+    expect(result.success).toBe(true);
+  }, 15000);
+
 });
