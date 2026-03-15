@@ -341,6 +341,51 @@
             "description": "System failure"
           }
         }
+      },
+      "delete": {
+        "tags": ["Invoices"],
+        "summary": "Delete invoice",
+        "description": "Deletes an invoice and its associated XML file from S3.",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac",
+            "description": "Unique identifier for the invoice"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice successfully deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "invoiceId": {
+                      "type": "string",
+                      "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "deleted"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Invoice not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
       }
     }
   },
