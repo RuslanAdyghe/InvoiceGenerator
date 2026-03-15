@@ -342,6 +342,46 @@
           }
         }
       }
+    },
+    "/invoices/{invoiceId}/download": {
+      "get": {
+        "tags": ["Invoices"],
+        "summary": "Download invoice XML",
+        "description": "Downloads the transformed UBL XML invoice document as a file.",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac",
+            "description": "Unique identifier for the invoice"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "UBL XML invoice document",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "object",
+                  "xml": {
+                    "name": "Invoice",
+                    "namespace": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+                  }
+                },
+                "example": "<Invoice xmlns=\"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2\" xmlns:cac=\"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2\" xmlns:cbc=\"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2\">\n  <cbc:ProfileID>Profile 1</cbc:ProfileID>\n  <cbc:IssueDate>2024-01-15</cbc:IssueDate>\n  <cbc:DueDate>2024-02-15</cbc:DueDate>\n  <cac:LegalMonetaryTotal>\n    <cbc:PayableAmount currencyID=\"AUD\">729</cbc:PayableAmount>\n  </cac:LegalMonetaryTotal>\n</Invoice>"
+              }
+            }
+          },
+          "404": {
+            "description": "Invoice not found or not yet transformed"
+          },
+          "500": {
+            "description": "Unexpected system failure"
+          }
+        }
+      }
     }
   },
   "components": {
