@@ -140,6 +140,15 @@ app.post("/auth/login", async (req, res, next) => {
   }
 });
 
+app.delete("/invoices/:id", async (req, res, next) => {
+  try {
+    const result = await deleteInvoice(req.params.id);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use((err, req, res, next) => {
