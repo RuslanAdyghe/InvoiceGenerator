@@ -18,6 +18,7 @@ import {
 import { validateInvoice } from "./validateInvoice.js";
 import { createUser, loginUser } from "./auth.js";
 import { downloadXml } from "./s3.js";
+import { sendInvoiceEmail } from "./sendInvoice.js";
 
 const app = express();
 app.use(express.json());
@@ -142,6 +143,16 @@ app.delete("/invoices/:id", async (req, res, next) => {
     res.json(result);
   } catch (err) {
     next(err);
+  }
+});
+
+app.post("/invoices/:invoiceId/send-email", async (req, res, next) => {
+  const { invoiceId } = req.params;
+
+  try {
+    res.status(200).json(await sendInvoiceEmail(invoiceId));
+  } catch (error) {
+    next(error);
   }
 });
 
