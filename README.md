@@ -79,7 +79,7 @@ From the root of the project:
 
 ```bash
 npm test
-npm npm test -- --coverage
+npm test -- --coverage
 ```
 
 ---
