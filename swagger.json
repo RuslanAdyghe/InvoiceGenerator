@@ -757,6 +757,28 @@
             "example": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Invoice>...</Invoice>"
           }
         }
+      },
+      "SendEmailResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "to": {
+            "type": "string",
+            "format": "email",
+            "example": "customer@example.com"
+          },
+          "messageId": {
+            "type": "string",
+            "example": "<abc123@gmail.com>"
+          },
+          "invoiceId": {
+            "type": "string",
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
+          }
+        }
       }
     }
   }
