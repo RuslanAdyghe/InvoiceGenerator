@@ -306,6 +306,46 @@
         }
       }
     },
+    "/invoices/{invoiceId}/send-email": {
+      "post": {
+        "tags": ["Invoices"],
+        "summary": "Send invoice email",
+        "description": "Sends the specified invoice as a UBL XML attachment to the customer's registered email address. Check spam folder. Email is located via UserId, make sure you use invoice generated from userID with your email to get it",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac",
+            "description": "Unique identifier for the invoice"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendEmailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing or invalid invoice ID"
+          },
+          "404": {
+            "description": "Invoice or user not found"
+          },
+          "500": {
+            "description": "Failed to send email"
+          }
+        }
+      }
+    },
     "/invoices/{invoiceId}": {
       "get": {
         "tags": ["Invoices"],
