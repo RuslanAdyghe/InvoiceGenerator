@@ -50,16 +50,16 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
   }
 
   return (
-    <div>
-      <h1>{heading}</h1>
-      <h3>{subheading}</h3>
-
+    <div className="flex flex-col w-full max-w-sm">
+      <h1 className="text-center text-4xl font-bold mb-4">{heading}</h1>
+      <h3 className="text-center text-sm text-gray-400 mb-6">{subheading}</h3>
+      <label className="font-medium text-gray-700 mb-1">Email</label>
       <input 
         type="email" 
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="border border-gray-300 rounded-md p-2 mb-4"
+        className="border border-gray-300 rounded-md p-2 mb-5 w-full"
       />
       {showConfirmPassword && ( 
         <input
@@ -67,15 +67,16 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
           placeholder="companyName"
           value={companyName}
           onChange={(e) => setCompanyName(e.target.value)}
-          className="border border-gray-300 rounded-md p-2 mb-4"
+          className="border border-gray-300 rounded-md p-2 mb-5 w-full"
         />
       )}
+      <label className="font-medium text-gray-700 mb-1">Password</label>
       <input
         type="password"
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        className="border border-gray-300 rounded-md p-2 mb-4"
+        className="border border-gray-300 rounded-md p-2 mb-10 w-full"
       />
       {showConfirmPassword && ( 
         <input
@@ -83,11 +84,11 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
           placeholder="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="border border-gray-300 rounded-md p-2 mb-4"
+          className="border border-gray-300 rounded-md p-2 mb-4 w-full"
         />
       )}
       <button 
-        className="bg-blue-500 text-white rounded-md px-4 py-2"
+        className="bg-purple-600 text-white text-lg rounded-md px-4 py-2 w-full mb-20"
         onClick={handleSubmit}
       >
         {buttonName}
