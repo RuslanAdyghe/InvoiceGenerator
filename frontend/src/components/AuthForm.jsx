@@ -87,7 +87,7 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
           placeholder="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="border border-gray-300 rounded-md p-2 mb-4 w-full"
+          className="border border-gray-300 rounded-md p-2 mb-4 lg:mb-20 w-full"
         />
       )}
       <button 
