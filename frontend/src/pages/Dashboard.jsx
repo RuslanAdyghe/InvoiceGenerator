@@ -1,10 +1,13 @@
 import { useNavigate } from "react-router-dom";
 
+import NavBar from "../components/NavBar";
+
 function Dashboard() {
   const navigate = useNavigate();
 
   return (
     <div>
+      <NavBar />
       <h1>THIS IS THE DASHBOARD</h1>
       <button
         className="bg-blue-500 text-white rounded-md px-6 py-3"
