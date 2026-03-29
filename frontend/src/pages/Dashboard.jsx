@@ -1,9 +1,27 @@
 import { useNavigate } from "react-router-dom";
 
 import NavBar from "../components/NavBar";
+import { useEffect, useState } from "react";
 
 function Dashboard() {
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+      
+      const response = await fetch(`http://localhost:3000/auth/user/${userId}`, {
+        headers: { "Authorization": `Bearer ${token}` },
+      });
+
+      const data = await response.json();
+      setUser(data);
+    };
+
+    fetchUserInfo();
+  }, []);
 
   return (
     <div>
