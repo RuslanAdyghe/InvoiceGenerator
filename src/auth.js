@@ -62,7 +62,13 @@ async function getUserById(id) {
       Key: { ID: id },
     }),
   );
-  return result.Item;
+
+  if (!result.Item) {
+    throw createError(404, "User not found");
+  }
+
+  const { password, ...userInfo } = result.Item;
+  return userInfo;
 }
 
 async function getUserByEmail(email) {
