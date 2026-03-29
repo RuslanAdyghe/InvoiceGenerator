@@ -156,6 +156,16 @@ app.post("/invoices/:invoiceId/send-email", async (req, res, next) => {
   }
 });
 
+app.get("/auth/user/info", async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+    res.status(200).json(await getUserById(userId));
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use((err, req, res, next) => {
