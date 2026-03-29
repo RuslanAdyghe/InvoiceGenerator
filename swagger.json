@@ -112,6 +112,43 @@
         }
       }
     },
+    "/auth/user/{userId}": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Get user",
+        "description": "Retrieves a user's information by their unique ID. Password is never returned.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+            "description": "Unique identifier for the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/invoices": {
       "post": {
         "tags": ["Invoices"],
@@ -270,7 +307,7 @@
       "get": {
         "tags": ["Invoices"],
         "summary": "Download invoice XML.",
-        "description": "Downloads the transformed UBL XML invoice document as a file, , only works if the Invoice has been transformed into UBL XML",
+        "description": "Downloads the transformed UBL XML invoice document as a file, only works if the Invoice has been transformed into UBL XML",
         "parameters": [
           {
             "name": "invoiceId",
@@ -486,6 +523,28 @@
           "email": {
             "type": "string",
             "example": "aaron@stashcorp.com"
+          }
+        }
+      },
+      "UserResponse": {
+        "type": "object",
+        "properties": {
+          "ID": {
+            "type": "string",
+            "example": "18eebbc2-8162-4bdd-b272-dd47dc81e7a8"
+          },
+          "email": {
+            "type": "string",
+            "example": "aaron@stashcorp.com"
+          },
+          "companyName": {
+            "type": "string",
+            "example": "Stash Corp"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T10:00:00.000Z"
           }
         }
       },
