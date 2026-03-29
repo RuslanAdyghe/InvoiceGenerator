@@ -13,9 +13,13 @@ function NavBar() {
 
   return (
     <>
-      <nav className="w-full bg-gradient-to-r from-blue-400 to-purple-400 flex justify-between p-3">
+      <nav className="w-full bg-gradient-to-r from-blue-400 to-purple-400 flex justify-between p-3 md:px-[750px]">
         <img src={logoIcon} alt="Logo" className="h-10 w-10" />
-        <img src={hamburgerIcon} alt="Hamburger" className="h-10 w-10" onClick={toggleMenu} />
+        <img src={hamburgerIcon} alt="Hamburger" className="h-10 w-10 md:hidden" onClick={toggleMenu} />
+        <div className="hidden md:flex gap-6 items-center">
+          <Link to="/create-invoice" className="text-white hover:text-gray-200 font-medium transition-colors">Create Invoice</Link>
+          <Link to="/profile" className="text-white hover:text-gray-200 font-medium transition-colors">Profile</Link>
+        </div>
       </nav>
       <div className="md:hidden">
         <div
