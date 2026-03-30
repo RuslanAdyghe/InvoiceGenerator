@@ -45,7 +45,7 @@ function Dashboard() {
   return (
     <div>
       <NavBar />
-      <main className="dashboard flex flex-col items-center pt-[20px] px-6">
+      <main className="dashboard flex flex-col items-center pt-[20px] px-6 pt-24">
         <section className="header flex flex-col items-center">
           <h1 className="text-gray-400 text-sm font-medium mb-1">Welcome back,</h1>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">{user?.companyName}</h1>

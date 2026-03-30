@@ -13,7 +13,7 @@ function NavBar() {
 
   return (
     <>
-      <nav className="w-full bg-gradient-to-r from-blue-400 to-purple-400 flex justify-between p-3 md:px-[750px]">
+      <nav className="w-full bg-gradient-to-r from-blue-400 to-purple-400 flex justify-between p-3 md:px-[750px] fixed top-0 z-50">
         <img src={logoIcon} alt="Logo" className="h-10 w-10" />
         <img src={hamburgerIcon} alt="Hamburger" className="h-10 w-10 md:hidden" onClick={toggleMenu} />
         <div className="hidden md:flex gap-6 items-center">
