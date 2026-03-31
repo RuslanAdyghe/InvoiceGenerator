@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { FilePlus, FileText } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import NavBar from "../components/NavBar";
-import { useEffect, useState } from "react";
+import InvoiceTable from "../components/InvoiceTable";
 
 function Dashboard() {
   const [user, setUser] = useState(null);
@@ -45,7 +46,7 @@ function Dashboard() {
   return (
     <div>
       <NavBar />
-      <main className="dashboard flex flex-col items-center pt-[20px] px-6 pt-24">
+      <main className="dashboard flex flex-col items-center pt-[20px] px-6 pt-20">
         <section className="header flex flex-col items-center">
           <h1 className="text-gray-400 text-sm font-medium mb-1">Welcome back,</h1>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">{user?.companyName}</h1>
@@ -67,35 +68,7 @@ function Dashboard() {
         </section>
         <section className="recent-invoices w-full px-4">
           <h1 className="font-bold text-lg mb-3 text-center">Recent Invoices</h1>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="bg-gray-100 text-gray-500">
-                <th className="text-left p-3 rounded-l-lg">ID</th>
-                <th className="text-left p-3">Status</th>
-                <th className="text-left p-3 rounded-r-lg">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentInvoices.map((invoice) => (
-                <tr key={invoice.ID} className="border-b border-gray-100">
-                  <td className="p-3 text-gray-600">{invoice.ID.slice(0, 8)}...</td>
-                  <td className="p-3">
-                    <span className="bg-purple-100 text-purple-600 px-2 py-1 rounded-full text-xs">
-                      {invoice.status}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <button
-                      onClick={() => navigate(`/invoices/${invoice.ID}`)}
-                      className="text-purple-500 hover:underline text-xs"
-                    >
-                      view
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <InvoiceTable recentInvoices={recentInvoices} />
         </section>
       </main>
     </div>

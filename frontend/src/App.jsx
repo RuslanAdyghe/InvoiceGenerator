@@ -4,6 +4,7 @@ import Login from "./pages/Login"
 import Signup from "./pages/Signup"
 import Dashboard from "./pages/Dashboard"
 import CreateInvoice from "./pages/CreateInvoice"
+import ViewInvoices from "./pages/ViewInvoices"
 
 function App() {
 
@@ -15,6 +16,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/create-invoice" element={<CreateInvoice />} />
+        <Route path="/view-invoices" element={<ViewInvoices />} />
       </Routes>
     </BrowserRouter>  
   )
