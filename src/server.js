@@ -16,7 +16,7 @@ import {
   deleteInvoice,
 } from "./invoice.js";
 import { validateInvoice } from "./validateInvoice.js";
-import { createUser, loginUser } from "./auth.js";
+import { createUser, loginUser, getUserById } from "./auth.js";
 import { downloadXml } from "./s3.js";
 import { sendInvoiceEmail } from "./sendInvoice.js";
 
@@ -156,7 +156,17 @@ app.post("/invoices/:invoiceId/send-email", async (req, res, next) => {
   }
 });
 
-app.get("/auth/user/info", async (req, res, next) => {
+app.get("/invoices/user/:userId", async (req, res, next) => {
+  const { userId } = req.params;
+
+  try {
+    res.status(200).json(await getInvoicesByUserId(userId));
+  } catch (error) { 
+    next(error);
+  }
+});
+
+app.get("/auth/user/:userId", async (req, res, next) => {
   const { userId } = req.params;
 
   try {
