@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/RuslanAdyghe/InvoiceGenerator#readme",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
     "@aws-sdk/client-dynamodb": "^3.600.0",
     "@aws-sdk/client-s3": "^3.1008.0",
     "@aws-sdk/credential-providers": "^3.1008.0",
@@ -39,8 +40,9 @@
     "dotenv": "^16.3.1",
     "express": "^4.22.1",
     "http-errors": "^2.0.1",
-    "libxmljs2": "^0.35.0",
     "jsonwebtoken": "^9.0.3",
+    "libxmljs2": "^0.37.0",
+    "multer": "^2.1.1",
     "nodemailer": "^8.0.2",
     "swagger-ui-express": "^5.0.1",
     "xmlbuilder2": "^4.0.3"
