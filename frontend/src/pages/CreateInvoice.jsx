@@ -18,7 +18,7 @@ export default function CreateInvoice() {
       PayeeFinancialAccount: { ID: "", Name: "", Currency: "" },
     },
     Supplier: { Name: "", ID: "" },
-    Customer: { Name: "", ID: "" },
+    Customer: { Name: "", ID: "", Email: "" },
     LegalMonetaryTotal: {
       Currency: "",
       LineExtensionAmount: 0,
@@ -109,6 +109,10 @@ export default function CreateInvoice() {
         setError(transformData.error || "Failed to transform invoice");
         return;
       }
+
+      await fetch(`http://localhost:3000/invoices/${data.invoiceId}/send-email`, {
+        method: "POST",
+      });
 
       setInvoiceXml(transformData.invoiceXml);
     } catch (err) {
@@ -300,6 +304,12 @@ export default function CreateInvoice() {
               placeholder="Customer ID"
               value={formData.Customer.ID}
               onChange={(e) => handleChange("Customer.ID", e.target.value)}
+            />
+            <input
+              className={inputClass}
+              placeholder="Customer Email"
+              value={formData.Customer.Email}
+              onChange={(e) => handleChange("Customer.Email", e.target.value)}
             />
 
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
