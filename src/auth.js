@@ -11,7 +11,7 @@ async function createUser(email, password, companyName) {
   if (existing) {
     throw createError(400, "Email already in use");
   }
-  
+
   const id = randomUUID();
 
   await db.send(
@@ -27,11 +27,9 @@ async function createUser(email, password, companyName) {
     }),
   );
 
-  const token = jwt.sign(
-    { userId: id, email },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" },  
-  );
+  const token = jwt.sign({ userId: id, email }, process.env.JWT_SECRET, {
+    expiresIn: "7d",
+  });
 
   return { token, userId: id, email };
 }
@@ -49,10 +47,10 @@ async function loginUser(email, password) {
   const token = jwt.sign(
     { userId: user.ID, email: user.email },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" },  
+    { expiresIn: "7d" },
   );
 
-  return { token, userId: user.ID};
+  return { token, userId: user.ID };
 }
 
 async function getUserById(id) {

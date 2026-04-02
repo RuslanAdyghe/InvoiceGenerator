@@ -19,6 +19,8 @@ import { validateInvoice } from "./validateInvoice.js";
 import { createUser, loginUser, getUserById } from "./auth.js";
 import { downloadXml } from "./s3.js";
 import { sendInvoiceEmail } from "./sendInvoice.js";
+import multer from "multer";
+import { extractInvoiceFromFile } from "./invoiceExtractor.js";
 
 const app = express();
 app.use(express.json());
@@ -161,7 +163,7 @@ app.get("/invoices/user/:userId", async (req, res, next) => {
 
   try {
     res.status(200).json(await getInvoicesByUserId(userId));
-  } catch (error) { 
+  } catch (error) {
     next(error);
   }
 });
@@ -177,6 +179,33 @@ app.get("/auth/user/:userId", async (req, res, next) => {
 });
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (["application/pdf", "text/csv"].includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only PDF and CSV files are supported"));
+    }
+  },
+});
+
+app.post("/invoices/extract", upload.single("file"), async (req, res, next) => {
+  try {
+    if (!req.file) throw createError(400, "No file uploaded");
+
+    const extractedData = await extractInvoiceFromFile(
+      req.file.buffer,
+      req.file.mimetype,
+    );
+
+    res.json({ success: true, invoiceData: extractedData });
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.use((err, req, res, next) => {
   const status = err.status ?? 500;
