@@ -140,7 +140,8 @@ export default function CreateInvoice() {
             </h2>
             <p className="text-sm text-gray-500 mb-4">
               Upload an existing invoice and we'll extract the fields for you to
-              review
+              review. Rest assured your sensitive data is not stored nor used in
+              the training of any AI softare.
             </p>
             <input
               type="file"
