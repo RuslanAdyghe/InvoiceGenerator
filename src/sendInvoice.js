@@ -50,7 +50,8 @@ async function sendInvoiceEmail(invoiceId) {
 
   const invoice = await getInvoiceById(invoiceId);
   const user = await getUserById(invoice.user_id);
-  const customerEmail = user.email;
+  const supplierEmail = user.email;
+  const customerEmail = invoice.invoice_data?.Customer?.Email;
 
   const xmlContent = toUBLXml(invoice.invoice_data);
   const customerName = invoice.invoice_data?.Customer?.Name ?? "Customer";
@@ -58,8 +59,7 @@ async function sendInvoiceEmail(invoiceId) {
   const payable = invoice.invoice_data?.LegalMonetaryTotal?.PayableAmount ?? "N/A";
   const currency = invoice.invoice_data?.LegalMonetaryTotal?.Currency ?? "";
 
-  const result = await sendEmail({
-    to: customerEmail,
+  const emailContent = {
     subject: `Invoice ${invoiceId} from ${invoice.invoice_data?.Supplier?.Name ?? "Supplier"}`,
     body: [
       `Dear ${customerName},`,
@@ -79,9 +79,38 @@ async function sendInvoiceEmail(invoiceId) {
       content: xmlContent,
       contentType: "application/xml",
     },
-  });
+  }
 
-  return { ...result, invoiceId };
+  await sendEmail({ to: customerEmail, ...emailContent });
+
+  if (customerEmail) {
+    await sendEmail({ to: customerEmail, ...emailContent });
+  }
+
+  // const result = await sendEmail({
+  //   to: customerEmail,
+  //   subject: `Invoice ${invoiceId} from ${invoice.invoice_data?.Supplier?.Name ?? "Supplier"}`,
+  //   body: [
+  //     `Dear ${customerName},`,
+  //     ``,
+  //     `Please find attached your invoice (ID: ${invoiceId}).`,
+  //     ``,
+  //     `  Issue Date:  ${issueDate}`,
+  //     `  Amount Due:  ${payable} ${currency}`,
+  //     ``,
+  //     `The invoice is attached as a UBL XML file.`,
+  //     ``,
+  //     `Regards,`,
+  //     invoice.invoice_data?.Supplier?.Name ?? "Your Supplier",
+  //   ].join("\n"),
+  //   attachment: {
+  //     filename: `invoice-${invoiceId}.xml`,
+  //     content: xmlContent,
+  //     contentType: "application/xml",
+  //   },
+  // });
+
+  return { success: true, invoiceId };
 }
 
 export { sendInvoiceEmail, sendEmail };

@@ -668,6 +668,11 @@
                   "ID": {
                     "type": "string",
                     "example": "CUST-001"
+                  },
+                  "Email": {
+                    "type": "string",
+                    "format": "email",
+                    "example": "client@example.com"
                   }
                 }
               },
