@@ -1,24 +1,36 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 
 import logoIcon from "../assets/logo.svg";  
 import hamburgerIcon from "../assets/hamburger.svg";
+import purpleLogoutIcon from "../assets/purple-logout.svg";
+import logoutIcon from "../assets/logout.svg";
 
 function NavBar() {
+  const navigate = useNavigate();
   const [menu, setMenu] = useState(false);  
 
   const toggleMenu = () => {
     setMenu(!menu);
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+
+    navigate("/login");
+  }
+
   return (
     <>
       <nav className="w-full bg-gradient-to-r from-blue-400 to-purple-400 flex justify-between p-3 md:px-[750px] fixed top-0 z-50">
-        <img src={logoIcon} alt="Logo" className="h-10 w-10" />
+        <img src={logoIcon} alt="Logo" className="h-10 w-10 cursor-pointer" onClick={() => navigate("/dashboard")} />
         <img src={hamburgerIcon} alt="Hamburger" className="h-10 w-10 md:hidden" onClick={toggleMenu} />
         <div className="hidden md:flex gap-6 items-center">
           <Link to="/create-invoice" className="text-white hover:text-gray-200 font-medium transition-colors">Create Invoice</Link>
+          <Link to="/view-invoices" className="text-white hover:text-gray-200 font-medium transition-colors">View Invoices</Link>
           <Link to="/profile" className="text-white hover:text-gray-200 font-medium transition-colors">Profile</Link>
+          <img src={logoutIcon} alt="Logout" className="h-6 w-6 cursor-pointer" onClick={handleLogout} />
         </div>
       </nav>
       <div className="md:hidden">
@@ -34,6 +46,10 @@ function NavBar() {
           <div className="flex flex-col p-4 gap-4">
             <Link to="/create-invoice" className="text-gray-600 hover:text-purple-500 font-medium transition-colors">Create Invoice</Link>
             <Link to="/profile" className="text-gray-600 hover:text-purple-500 font-medium transition-colors">Profile</Link>
+            <button onClick={handleLogout} className="flex items-center gap-2 text-purple-600 font-medium">
+              <img src={purpleLogoutIcon} alt="logout" className="w-5 h-5" />
+              Logout
+            </button>
           </div>
         </div>
       </div>
