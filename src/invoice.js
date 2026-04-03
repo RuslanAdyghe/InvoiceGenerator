@@ -10,6 +10,66 @@ import db from "./db.js";
 import { devNull } from "os";
 import createError from "http-errors";
 
+const VALID_TRANSITIONS = {
+  created: ["transformed", "cancelled"],
+  transformed: ["sent", "cancelled"],
+  sent: ["paid", "overdue", "cancelled"],
+  overdue: ["paid", "cancelled"],
+  paid: [],
+  cancelled: [],
+  credited: [],
+};
+
+async function updateInvoiceStatus(invoiceId, newStatus) {
+  const result = await db.send(
+    new GetCommand({
+      TableName: "Invoices",
+      Key: { ID: invoiceId },
+    }),
+  );
+
+  if (!result.Item) {
+    throw createError(404, "Invoice not found");
+  }
+
+  const currentStatus = result.Item.status;
+  const allowedTransitions = VALID_TRANSITIONS[currentStatus] ?? [];
+  if (!allowedTransitions.includes(newStatus)) {
+    throw createError(
+      400,
+      `Invalid transition: ${currentStatus} → ${newStatus}`,
+    );
+  }
+
+  const setClauses = ["SET #status = :status"];
+  const expressionValues = { ":status": newStatus };
+
+  if (newStatus === "sent") {
+    setClauses.push("sent_at = :sent_at");
+    expressionValues[":sent_at"] = new Date().toISOString();
+  }
+  if (newStatus === "paid") {
+    setClauses.push("paid_at = :paid_at");
+    expressionValues[":paid_at"] = new Date().toISOString();
+  }
+  if (newStatus === "overdue") {
+    setClauses.push("overdue_since = :overdue_since");
+    expressionValues[":overdue_since"] = new Date().toISOString();
+  }
+
+  await db.send(
+    new UpdateCommand({
+      TableName: "Invoices",
+      Key: { ID: invoiceId },
+      UpdateExpression: setClauses.join(", "),
+      ExpressionAttributeNames: { "#status": "status" },
+      ExpressionAttributeValues: expressionValues,
+    }),
+  );
+
+  return { invoiceId, status: newStatus };
+}
+
 import toUBLXml from "./XmlConverter.js";
 import { uploadXml, deleteXml } from "./s3.js";
 
@@ -85,15 +145,7 @@ async function transformInvoice(invoiceId) {
     await uploadXml(invoiceId, invoiceXml);
 
     // Update status in Dynamodb
-    await db.send(
-      new UpdateCommand({
-        TableName: "Invoices",
-        Key: { ID: invoiceId },
-        UpdateExpression: "SET #status = :status",
-        ExpressionAttributeNames: { "#status": "status" },
-        ExpressionAttributeValues: { ":status": "transformed" },
-      }),
-    );
+    await updateInvoiceStatus(invoiceId, "transformed");
 
     return {
       invoiceId,
@@ -140,4 +192,5 @@ export {
   getInvoicesByUserId,
   transformInvoice,
   deleteInvoice,
+  updateInvoiceStatus,
 };

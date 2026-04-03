@@ -1,7 +1,7 @@
 import { uploadXml, getXmlUrl } from "../src/s3.js";
 import toUBLXml from "../src/XmlConverter.js";
-import { getInvoicesByUserId } from "../src/invoice.js";
-import { transformInvoice } from "../src/invoice.js";
+import { createInvoice, transformInvoice } from "../src/invoice.js";
+
 function validInvoice() {
   return {
     ProfileID: "Profile 1",
@@ -37,8 +37,14 @@ function validInvoice() {
 }
 
 describe("S3 Tests", () => {
-  const testInvoiceId = "test-invoice-123";
+  let testInvoiceId = "test-invoice-123";
+  let dynamoInvoiceId;
   let s3Key;
+
+  beforeAll(async () => {
+    const result = await createInvoice("18eebbc2-8162-4bdd-b272-dd47dc81e7a8", validInvoice());
+    dynamoInvoiceId = result.invoiceId;
+  });
 
   test("uploads UBL XML to S3", async () => {
     const xml = toUBLXml(validInvoice());
@@ -54,15 +60,8 @@ describe("S3 Tests", () => {
   });
 
   test("gets presigned URL for existing invoice from DynamoDB", async () => {
-    // get an invoice from DynamoDB
-    const invoices = await getInvoicesByUserId(
-      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
-    );
-    expect(invoices.length).toBeGreaterThan(0);
-
-    const invoice = invoices[0];
-    let transformed = await transformInvoice(invoice.ID);
-    const url = await getXmlUrl(invoice.xmlS3Key);
+    const transformed = await transformInvoice(dynamoInvoiceId);
+    const url = await getXmlUrl(transformed.invoiceXml);
     expect(url).toBeDefined();
   });
 });

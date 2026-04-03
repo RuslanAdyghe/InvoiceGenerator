@@ -2,7 +2,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DeleteModal from "./DeleteModal";
 
-function InvoiceTable({ recentInvoices, viewInvoice = false, onDelete = null }) {
+function InvoiceTable({
+  recentInvoices,
+  viewInvoice = false,
+  onDelete = null,
+}) {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
@@ -10,10 +14,13 @@ function InvoiceTable({ recentInvoices, viewInvoice = false, onDelete = null }) 
   const deleteInvoice = async (invoiceId) => {
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`http://localhost:3000/invoices/${invoiceId}`, {
-        method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` },
-      });
+      const response = await fetch(
+        `http://localhost:3000/invoices/${invoiceId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
 
       const data = await response.json();
 
@@ -41,11 +48,13 @@ function InvoiceTable({ recentInvoices, viewInvoice = false, onDelete = null }) 
         <tbody>
           {recentInvoices.map((invoice) => (
             <tr key={invoice.ID} className="border-b border-gray-100">
-              <td className="p-3 md:p-4 text-gray-600">{invoice.ID.slice(0, 8)}...</td>
+              <td className="p-3 md:p-4 text-gray-600">
+                {invoice.ID.slice(0, 8)}...
+              </td>
               <td className="p-3 md:p-4">
-                <span className="bg-purple-100 text-purple-600 px-2 py-1 rounded-full text-xs md:text-sm">
-                  {invoice.status}
-                </span>
+                <span
+                  className={`${statusColor(invoice.status)} px-3 py-1 rounded-full text-xs mt-2 inline-block`}
+                ></span>
               </td>
               <td className="p-3 md:p-4">
                 <button
@@ -56,7 +65,10 @@ function InvoiceTable({ recentInvoices, viewInvoice = false, onDelete = null }) 
                 </button>
                 {viewInvoice && (
                   <button
-                    onClick={() => { setInvoiceToDelete(invoice.ID); setShowDeleteModal(true); }}
+                    onClick={() => {
+                      setInvoiceToDelete(invoice.ID);
+                      setShowDeleteModal(true);
+                    }}
                     className="text-red-500 hover:underline text-xs md:text-sm"
                   >
                     Delete
@@ -71,7 +83,10 @@ function InvoiceTable({ recentInvoices, viewInvoice = false, onDelete = null }) 
       {showDeleteModal && (
         <DeleteModal
           invoiceId={invoiceToDelete}
-          onConfirm={(id) => { deleteInvoice(id); setShowDeleteModal(false); }}
+          onConfirm={(id) => {
+            deleteInvoice(id);
+            setShowDeleteModal(false);
+          }}
           onCancel={() => setShowDeleteModal(false)}
         />
       )}

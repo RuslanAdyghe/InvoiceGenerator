@@ -93,7 +93,11 @@ describe("DynamoDB Invoice tests", () => {
   });
 
   test("transformed XML contains correct invoice data", async () => {
-    const result = await transformInvoice(invoiceId);
+    const fresh = await createInvoice(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+      validInvoice(),
+    );
+    const result = await transformInvoice(fresh.invoiceId);
     expect(result.invoiceXml).toContain("<cbc:ProfileID>");
     expect(result.invoiceXml).toContain("<cbc:IssueDate>");
     expect(result.invoiceXml).toContain("<cac:AccountingSupplierParty>");
@@ -101,7 +105,6 @@ describe("DynamoDB Invoice tests", () => {
 });
 
 describe("createInvoice validation tests", () => {
-
   test("throws 400 when userId is missing", async () => {
     await expect(createInvoice(null, validInvoice())).rejects.toMatchObject({
       status: 400,
@@ -111,7 +114,7 @@ describe("createInvoice validation tests", () => {
 
   test("throws 400 when invoiceData is missing", async () => {
     await expect(
-      createInvoice("18eebbc2-8162-4bdd-b272-dd47dc81e7a8", null)
+      createInvoice("18eebbc2-8162-4bdd-b272-dd47dc81e7a8", null),
     ).rejects.toMatchObject({
       status: 400,
       message: "userId and invoiceData are required",
@@ -136,7 +139,6 @@ describe("createInvoice validation tests", () => {
 });
 
 describe("getInvoiceById validation tests", () => {
-
   test("throws 404 for non existent invoice", async () => {
     await expect(getInvoiceById("non-existent-id")).rejects.toMatchObject({
       status: 404,
@@ -146,7 +148,6 @@ describe("getInvoiceById validation tests", () => {
 });
 
 describe("transformInvoice validation tests", () => {
-
   test("throws 500 when invoice data cannot be transformed", async () => {
     const invoice = await createInvoice(
       "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
