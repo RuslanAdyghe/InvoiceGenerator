@@ -1,7 +1,7 @@
 import "dotenv/config";
 import nodemailer from "nodemailer";
 import { getUserById } from "./auth.js";
-import { getInvoiceById } from "./invoice.js";
+import { getInvoiceById, updateInvoiceStatus } from "./invoice.js";
 import toUBLXml from "./XmlConverter.js";
 
 function createTransporter() {
@@ -56,7 +56,8 @@ async function sendInvoiceEmail(invoiceId) {
   const xmlContent = toUBLXml(invoice.invoice_data);
   const customerName = invoice.invoice_data?.Customer?.Name ?? "Customer";
   const issueDate = invoice.invoice_data?.IssueDate ?? "N/A";
-  const payable = invoice.invoice_data?.LegalMonetaryTotal?.PayableAmount ?? "N/A";
+  const payable =
+    invoice.invoice_data?.LegalMonetaryTotal?.PayableAmount ?? "N/A";
   const currency = invoice.invoice_data?.LegalMonetaryTotal?.Currency ?? "";
 
   const emailContent = {
@@ -79,9 +80,10 @@ async function sendInvoiceEmail(invoiceId) {
       content: xmlContent,
       contentType: "application/xml",
     },
-  }
+  };
 
   await sendEmail({ to: customerEmail, ...emailContent });
+  await updateInvoiceStatus(invoiceId, "sent");
 
   if (customerEmail) {
     await sendEmail({ to: customerEmail, ...emailContent });
