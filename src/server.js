@@ -14,6 +14,7 @@ import {
   getInvoicesByUserId,
   transformInvoice,
   deleteInvoice,
+  updateInvoiceStatus,
 } from "./invoice.js";
 import { validateInvoice } from "./validateInvoice.js";
 import { createUser, loginUser, getUserById } from "./auth.js";
@@ -108,7 +109,10 @@ const upload = multer({
 app.post("/invoices/extract", upload.single("file"), async (req, res, next) => {
   try {
     if (!req.file) throw createError(400, "No file uploaded");
-    const extractedData = await extractInvoiceFromFile(req.file.buffer, req.file.mimetype);
+    const extractedData = await extractInvoiceFromFile(
+      req.file.buffer,
+      req.file.mimetype,
+    );
     res.json({ success: true, invoiceData: extractedData });
   } catch (err) {
     next(err);
@@ -163,7 +167,10 @@ app.get("/invoices/:invoiceId/download", async (req, res, next) => {
   try {
     const xml = await downloadXml(invoiceId);
     res.set("Content-Type", "application/xml");
-    res.set("Content-Disposition", `attachment; filename="invoice-${invoiceId}.xml"`);
+    res.set(
+      "Content-Disposition",
+      `attachment; filename="invoice-${invoiceId}.xml"`,
+    );
     res.send(xml);
   } catch (error) {
     next(error);
@@ -174,6 +181,17 @@ app.post("/invoices/:invoiceId/send-email", async (req, res, next) => {
   const { invoiceId } = req.params;
   try {
     res.status(200).json(await sendInvoiceEmail(invoiceId));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.put("/invoices/:invoiceId/status", async (req, res, next) => {
+  const { invoiceId } = req.params;
+  const { status } = req.body;
+  try {
+    const result = await updateInvoiceStatus(invoiceId, status);
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }
