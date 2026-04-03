@@ -1,7 +1,7 @@
 import { sendInvoiceEmail, sendEmail } from "../src/sendInvoice.js";
 import { createInvoice } from "../src/invoice.js";
 import { createUser } from "../src/auth.js";
-import { useId } from "react";
+
 
 function validInvoice() {
   return {
@@ -31,6 +31,7 @@ function validInvoice() {
     Customer: {
       Name: "Client Ltd",
       ID: "CUST-001",
+      Email:"umum2169@gmail.com"
     },
     LegalMonetaryTotal: {
       Currency: "AUD",
@@ -85,12 +86,12 @@ describe("Send Invoice Email Tests", () => {
   }, 15000);
 
   test("sends email to customer when Customer.Email is provided", async () => {
-    const invoiceWithCustomerEmail = await createInvoice(useId, {
+    const invoiceWithCustomerEmail = await createInvoice(userId, {
       ...validInvoice(),
       Customer: {
         Name: "Client Ltd",
         ID: "CUST-001",
-        Email: testEmail,
+        Email: "umum2169@gmail.com",
       },
     });
 
