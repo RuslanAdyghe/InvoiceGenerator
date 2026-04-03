@@ -2,12 +2,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
+import DeleteModal from "../components/DeleteModal";
 
 function InvoiceDetail() {
   const { invoiceId } = useParams();
   const navigate = useNavigate();
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     const fetchInvoice = async () => {
@@ -74,6 +76,27 @@ function InvoiceDetail() {
     a.download = `invoice-${invoiceId}.xml`;
     a.click();
     window.URL.revokeObjectURL(url);
+  };
+
+  const handleDelete = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(
+        `http://localhost:3000/invoices/${invoiceId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        alert(data.error || "Failed to delete invoice");
+        return;
+      }
+      navigate("/invoices");
+    } catch (error) {
+      alert("Failed to connect to server");
+    }
   };
 
   return (
@@ -250,8 +273,25 @@ function InvoiceDetail() {
             >
               Download XML
             </button>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="bg-red-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
+            >
+              Delete
+            </button>
           </div>
         </div>
+
+        {showDeleteModal && (
+          <DeleteModal
+            invoiceId={invoiceId}
+            onConfirm={() => {
+              handleDelete();
+              setShowDeleteModal(false);
+            }}
+            onCancel={() => setShowDeleteModal(false)}
+          />
+        )}
       </main>
     </>
   );
