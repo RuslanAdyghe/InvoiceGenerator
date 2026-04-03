@@ -10,6 +10,62 @@ import db from "./db.js";
 import { devNull } from "os";
 import createError from "http-errors";
 
+const VALID_TRANSITIONS = {
+  Draft: ["Transformed", "Cancelled"],
+  Transformed: ["Sent", "Cancelled"],
+  Sent: ["Paid", "Overdue", "Cancelled"],
+  Overdue: ["Paid", "Cancelled"],
+  Paid: [],
+  Cancelled: [],
+  Credited: [],
+};
+async function updateInvoiceStatus(invoiceId, newStatus) {
+  const result = await db.send(
+    new GetCommand({
+      TableName: "Invoices",
+      Key: { ID: invoiceId },
+    }),
+  );
+  if (!result.Item) {
+    throw createError(404, "Invoice not found");
+  }
+  const currentStatus = result.Item.status;
+  const allowedTransitions = VALID_TRANSITIONS[currentStatus] ?? [];
+  if (!allowedTransitions.includes(newStatus)) {
+    throw createError(
+      400,
+      `Invalid transition: ${currentStatus} → ${newStatus}`,
+    );
+  }
+  // Build extra fields depending on new status
+  const setClauses = ["SET #status = :status"];
+  const expressionValues = { ":status": newStatus };
+
+  if (newStatus === "Sent") {
+    setClauses.push("sent_at = :sent_at");
+    expressionValues[":sent_at"] = new Date().toISOString();
+  }
+  if (newStatus === "Paid") {
+    setClauses.push("paid_at = :paid_at");
+    expressionValues[":paid_at"] = new Date().toISOString();
+  }
+  if (newStatus === "Overdue") {
+    setClauses.push("overdue_since = :overdue_since");
+    expressionValues[":overdue_since"] = new Date().toISOString();
+  }
+
+  await db.send(
+    new UpdateCommand({
+      TableName: "Invoices",
+      Key: { ID: invoiceId },
+      UpdateExpression: updateExpressions,
+      ExpressionAttributeNames: { "#status": "status" },
+      ExpressionAttributeValues: expressionValues,
+    }),
+  );
+  return { invoiceId, status: newStatus, ...extraFields };
+}
+
 import toUBLXml from "./XmlConverter.js";
 import { uploadXml, deleteXml } from "./s3.js";
 
@@ -85,19 +141,11 @@ async function transformInvoice(invoiceId) {
     await uploadXml(invoiceId, invoiceXml);
 
     // Update status in Dynamodb
-    await db.send(
-      new UpdateCommand({
-        TableName: "Invoices",
-        Key: { ID: invoiceId },
-        UpdateExpression: "SET #status = :status",
-        ExpressionAttributeNames: { "#status": "status" },
-        ExpressionAttributeValues: { ":status": "transformed" },
-      }),
-    );
+    updateInvoiceStatus(invoiceId, "Transformed");
 
     return {
       invoiceId,
-      status: "transformed",
+      status: "Transformed",
       invoiceXml,
     };
   } catch (error) {
