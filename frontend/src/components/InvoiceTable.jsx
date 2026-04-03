@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DeleteModal from "./DeleteModal";
-
+import { statusColor } from "../utils/statusColour";
 function InvoiceTable({
   recentInvoices,
   viewInvoice = false,
@@ -54,7 +54,9 @@ function InvoiceTable({
               <td className="p-3 md:p-4">
                 <span
                   className={`${statusColor(invoice.status)} px-3 py-1 rounded-full text-xs mt-2 inline-block`}
-                ></span>
+                >
+                  {invoice.status}
+                </span>
               </td>
               <td className="p-3 md:p-4">
                 <button
