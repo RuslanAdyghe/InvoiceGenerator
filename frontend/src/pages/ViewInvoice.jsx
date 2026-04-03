@@ -243,12 +243,14 @@ function InvoiceDetail() {
               </div>
             </div>
           </div>
-          <button
-            onClick={handleDownload}
-            className="w-full bg-purple-600 text-white text-sm font-medium rounded-md px-4 py-3 mt-2"
-          >
-            Download XML
-          </button>
+          <div className="flex justify-end gap-2">
+            <button
+              onClick={handleDownload}
+              className="bg-purple-600 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
+            >
+              Download XML
+            </button>
+          </div>
         </div>
       </main>
     </>
