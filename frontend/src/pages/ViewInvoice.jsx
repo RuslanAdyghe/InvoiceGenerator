@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import DeleteModal from "../components/DeleteModal";
+import { statusColor } from "../utils/statusColour";
 
 function InvoiceDetail() {
   const { invoiceId } = useParams();
@@ -99,6 +100,30 @@ function InvoiceDetail() {
     }
   };
 
+  const handleMarkAsPaid = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(
+        `http://localhost:3000/invoices/${invoiceId}/status`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "paid" }),
+        },
+      );
+      if (!response.ok) {
+        alert("Failed to update invoice status");
+        return;
+      }
+      setInvoice((prev) => ({ ...prev, status: "paid" }));
+    } catch {
+      alert("Failed to connect to server");
+    }
+  };
+
   return (
     <>
       <NavBar />
@@ -115,9 +140,9 @@ function InvoiceDetail() {
               Invoice Detail
             </h1>
             <p className="text-gray-400 text-sm">{invoice.ID}</p>
-            <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full text-xs mt-2 inline-block">
-              {invoice.status}
-            </span>
+            <span
+              className={`${statusColor(invoice.status)} px-3 py-1 rounded-full text-xs mt-2 inline-block`}
+            ></span>
           </section>
 
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-6">
@@ -278,6 +303,12 @@ function InvoiceDetail() {
               className="bg-red-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
             >
               Delete
+            </button>
+            <button
+              onClick={handleMarkAsPaid}
+              className="bg-green-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
+            >
+              Mark as Paid
             </button>
           </div>
         </div>

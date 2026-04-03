@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { statusColor } from "frontend/src/utils/statusColour.js";
 
 import NavBar from "../components/NavBar";
 import InvoiceTable from "../components/InvoiceTable";
