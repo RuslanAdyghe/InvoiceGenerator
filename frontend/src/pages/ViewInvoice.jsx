@@ -4,6 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import DeleteModal from "../components/DeleteModal";
 import { statusColor } from "../utils/statusColour";
+import { pdf } from "@react-pdf/renderer";
+import InvoicePDF from "../components/InvoicePDF";
 
 function InvoiceDetail() {
   const { invoiceId } = useParams();
@@ -122,6 +124,16 @@ function InvoiceDetail() {
     } catch {
       alert("Failed to connect to server");
     }
+  };
+
+  const handleDownloadPDF = async () => {
+    const blob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `invoice-${invoiceId}.pdf`;
+    a.click();
+    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -312,6 +324,12 @@ function InvoiceDetail() {
                 className="bg-purple-600 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
               >
                 Download XML
+              </button>
+              <button
+                onClick={handleDownloadPDF}
+                className="bg-blue-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
+              >
+                Download PDF
               </button>
             </div>
           </div>
