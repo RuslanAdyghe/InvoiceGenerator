@@ -1,7 +1,6 @@
 import { sendInvoiceEmail, sendEmail } from "../src/sendInvoice.js";
-import { createInvoice } from "../src/invoice.js";
+import { createInvoice, transformInvoice } from "../src/invoice.js";
 import { createUser } from "../src/auth.js";
-
 
 function validInvoice() {
   return {
@@ -31,7 +30,7 @@ function validInvoice() {
     Customer: {
       Name: "Client Ltd",
       ID: "CUST-001",
-      Email:"umum2169@gmail.com"
+      Email: "umum2169@gmail.com",
     },
     LegalMonetaryTotal: {
       Currency: "AUD",
@@ -57,6 +56,7 @@ describe("Send Invoice Email Tests", () => {
     userId = user.userId;
     const invoice = await createInvoice(userId, validInvoice());
     invoiceId = invoice.invoiceId;
+    await transformInvoice(invoiceId); // ← add this
   });
 
   test("sends invoice email and returns success", async () => {
@@ -94,7 +94,7 @@ describe("Send Invoice Email Tests", () => {
         Email: "umum2169@gmail.com",
       },
     });
-
+    await transformInvoice(invoiceWithCustomerEmail.invoiceId);
     const result = await sendInvoiceEmail(invoiceWithCustomerEmail.invoiceId);
     expect(result.success).toBe(true);
     expect(result.invoiceId).toBe(invoiceWithCustomerEmail.invoiceId);

@@ -142,7 +142,9 @@ function InvoiceDetail() {
             <p className="text-gray-400 text-sm">{invoice.ID}</p>
             <span
               className={`${statusColor(invoice.status)} px-3 py-1 rounded-full text-xs mt-2 inline-block`}
-            ></span>
+            >
+              {invoice.status}
+            </span>
           </section>
 
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-6">
@@ -291,25 +293,27 @@ function InvoiceDetail() {
               </div>
             </div>
           </div>
-          <div className="flex justify-end gap-2">
-            <button
-              onClick={handleDownload}
-              className="bg-purple-600 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
-            >
-              Download XML
-            </button>
+          <div className="flex justify-between gap-2">
             <button
               onClick={() => setShowDeleteModal(true)}
               className="bg-red-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
             >
               Delete
             </button>
-            <button
-              onClick={handleMarkAsPaid}
-              className="bg-green-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
-            >
-              Mark as Paid
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={handleMarkAsPaid}
+                className="bg-green-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
+              >
+                Mark as Paid
+              </button>
+              <button
+                onClick={handleDownload}
+                className="bg-purple-600 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
+              >
+                Download XML
+              </button>
+            </div>
           </div>
         </div>
 
