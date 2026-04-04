@@ -17,10 +17,7 @@ function deliveryFragment(delivery) {
     .up();
 
   if (delivery.ActualDeliveryTime) {
-    frag
-      .ele("cbc:ActualDeliveryTime")
-      .txt(delivery.ActualDeliveryTime)
-      .up();
+    frag.ele("cbc:ActualDeliveryTime").txt(delivery.ActualDeliveryTime).up();
   }
 
   return frag;
@@ -36,10 +33,7 @@ function paymentMeansFragment(paymentMeans) {
     .up();
 
   if (paymentMeans.PaymentDueDate) {
-    frag
-      .ele("cbc:PaymentDueDate")
-      .txt(paymentMeans.PaymentDueDate)
-      .up();
+    frag.ele("cbc:PaymentDueDate").txt(paymentMeans.PaymentDueDate).up();
   }
 
   frag
@@ -108,7 +102,7 @@ function legalMonetaryTotalFragment(legalMonetaryTotal) {
       .txt(legalMonetaryTotal.AllowanceTotalAmount)
       .up();
   }
-  
+
   if (legalMonetaryTotal.ChargeTotalAmount !== undefined) {
     frag
       .ele("cbc:ChargeTotalAmount")
@@ -124,7 +118,7 @@ function legalMonetaryTotalFragment(legalMonetaryTotal) {
       .txt(legalMonetaryTotal.PrepaidAmount)
       .up();
   }
-  
+
   frag
     .ele("cbc:PayableAmount")
     .att("currencyID", currency)
@@ -132,7 +126,7 @@ function legalMonetaryTotalFragment(legalMonetaryTotal) {
     .up()
     .up();
 
-    return frag;
+  return frag;
 }
 
 function toUBLXml(invoice) {
@@ -145,6 +139,7 @@ function toUBLXml(invoice) {
   });
 
   // Top level fields
+  root.ele("cbc:ID").txt(invoice.InvoiceID).up();
   root.ele("cbc:ProfileID").txt(invoice.ProfileID).up();
   root.ele("cbc:IssueDate").txt(invoice.IssueDate).up();
   root.ele("cbc:DueDate").txt(invoice.DueDate).up();

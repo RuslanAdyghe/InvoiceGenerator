@@ -32,6 +32,14 @@
       "format": "date",
       "description": "Date payment is due"
     },
+    "InvoiceTypeCode": {
+      "type": "string",
+      "description": "Invoice type code"
+    },
+    "DocumentCurrencyCode": {
+      "type": "string",
+      "description": "Invoice currency code"
+    },
     "OrderReference": {
       "type": "object",
       "required": ["ID"],
@@ -137,8 +145,16 @@
     },
     "Supplier": {
       "type": "object",
-      "required": ["Name"],
+      "required": ["Name", "PostalAddress"],
       "properties": {
+        "EndpointID": {
+          "type": "string",
+          "description": "Supplier (seller) email"
+        },
+        "PartyName": {
+          "type": "string",
+          "description": "Supplier (seller) name"
+        },
         "Name": {
           "type": "string",
           "description": "Supplier (seller) name"
@@ -146,20 +162,90 @@
         "ID": {
           "type": "string",
           "description": "Optional supplier identifier"
+        },
+        "PostalAddress": {
+          "type": "object",
+          "required": ["Country"],
+          "description": "IBG-05 - Seller postal address",
+          "properties": {
+            "StreetName": {
+              "type": "string",
+              "description": "Seller address line 1"
+            },
+            "AdditionalStreetName": {
+              "type": "string",
+              "description": "Seller address line 2"
+            },
+            "CityName": {
+              "type": "string",
+              "description": "Seller city"
+            },
+            "PostalZone": {
+              "type": "string",
+              "description": "Seller post code"
+            },
+            "CountrySubentity": {
+              "type": "string",
+              "description": "Seller country subdivision (region, state, province etc.)"
+            },
+            "Country": {
+              "type": "string",
+              "description": "Seller country code (IBT-040) - required per IBR-009"
+            }
+          }
         }
       }
     },
     "Customer": {
       "type": "object",
-      "required": ["Name"],
+      "required": ["Name", "PostalAddress"],
       "properties": {
+        "EndpointID": {
+          "type": "string",
+          "description": "Customer (buyer) email"
+        },
+        "PartyName": {
+          "type": "string",
+          "description": "Customer (buyer) name"
+        },
         "Name": {
           "type": "string",
-          "description": "Customer (payer) name"
+          "description": "Customer (buyer) name"
         },
         "ID": {
           "type": "string",
           "description": "Optional customer identifier"
+        },
+        "PostalAddress": {
+          "type": "object",
+          "required": ["Country"],
+          "description": "IBG-08 - Buyer postal address",
+          "properties": {
+            "StreetName": {
+              "type": "string",
+              "description": "Customer address line 1"
+            },
+            "AdditionalStreetName": {
+              "type": "string",
+              "description": "Customer address line 2"
+            },
+            "CityName": {
+              "type": "string",
+              "description": "Customer city"
+            },
+            "PostalZone": {
+              "type": "string",
+              "description": "Customer post code"
+            },
+            "CountrySubentity": {
+              "type": "string",
+              "description": "Customer country subdivision (region, state, province etc.)"
+            },
+            "Country": {
+              "type": "string",
+              "description": "Customer country code - required per IBR-009"
+            }
+          }
         }
       }
     }
