@@ -10,6 +10,7 @@ function validInvoice() {
     ProfileID: "Profile 1",
     IssueDate: "2024-01-15",
     DueDate: "2024-02-15",
+    DocumentCurrencyCode: "EUR",
 
     OrderReference: {
       ID: "ORD-001",
@@ -26,18 +27,23 @@ function validInvoice() {
       PayeeFinancialAccount: {
         ID: "GB29NWBK60161331926819",
         Name: "Stash Corp",
-        Currency: "JOD",
       },
     },
 
     Supplier: {
       Name: "Stash Corp",
       ID: "SUP-001",
+      PostalAddress: {
+        Country: "AU",
+      },
     },
 
     Customer: {
       Name: "Client Ltd",
       ID: "CUST-001",
+      PostalAddress: {
+        Country: "AU",
+      },
     },
 
     LegalMonetaryTotal: {

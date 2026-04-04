@@ -81,7 +81,7 @@
         },
         "PayeeFinancialAccount": {
           "type": "object",
-          "required": ["ID", "Name", "Currency"],
+          "required": ["ID", "Name"],
           "properties": {
             "ID": {
               "type": "string",
@@ -90,10 +90,6 @@
             "Name": {
               "type": "string",
               "description": "Account holder name"
-            },
-            "Currency": {
-              "type": "string",
-              "description": "ISO currency code"
             }
           }
         }
@@ -105,14 +101,9 @@
         "LineExtensionAmount",
         "TaxExclusiveAmount",
         "TaxInclusiveAmount",
-        "PayableAmount",
-        "Currency"
+        "PayableAmount"
       ],
       "properties": {
-        "Currency": {
-          "type": "string",
-          "description": "ISO currency code applied to all monetary amounts"
-        },
         "LineExtensionAmount": {
           "type": "number",
           "description": "Sum of all invoice line amounts before tax"

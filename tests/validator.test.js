@@ -5,6 +5,7 @@ function validInvoice() {
     ProfileID: "Profile 1",
     IssueDate: "2024-01-15",
     DueDate: "2024-02-15",
+    DocumentCurrencyCode: "EUR",
 
     OrderReference: {
       ID: "ORD-001",
@@ -21,18 +22,23 @@ function validInvoice() {
       PayeeFinancialAccount: {
         ID: "GB29NWBK60161331926819",
         Name: "Stash Corp",
-        Currency: "JOD",
       },
     },
 
     Supplier: {
       Name: "Stash Corp",
       ID: "SUP-001",
+      PostalAddress: {
+        Country: "AU",
+      },
     },
 
     Customer: {
       Name: "Client Ltd",
       ID: "CUST-001",
+      PostalAddress: {
+        Country: "AU",
+      },
     },
 
     LegalMonetaryTotal: {
@@ -51,12 +57,14 @@ function validInvoice() {
 describe("Input Validation Tests", () => {
   test("accepts a valid invoice object", () => {
     const result = validateSchema(validInvoice());
+    console.log(result.errors);
     expect(result.valid).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
 
   test("accepts a valid invoice as a JSON string", () => {
     const result = validateSchema(JSON.stringify(validInvoice()));
+    console.log(result.errors);
     expect(result.valid).toBe(true);
   });
 

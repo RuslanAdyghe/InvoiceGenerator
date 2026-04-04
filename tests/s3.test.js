@@ -7,6 +7,7 @@ function validInvoice() {
     ProfileID: "Profile 1",
     IssueDate: "2024-01-15",
     DueDate: "2024-02-15",
+    DocumentCurrencyCode: "EUR",
     OrderReference: { ID: "ORD-001" },
     Delivery: {
       ActualDeliveryDate: "2024-01-14",
@@ -18,11 +19,18 @@ function validInvoice() {
       PayeeFinancialAccount: {
         ID: "GB29NWBK60161331926819",
         Name: "Stash Corp",
-        Currency: "JOD",
       },
     },
-    Supplier: { Name: "Stash Corp", ID: "SUP-001" },
-    Customer: { Name: "Client Ltd", ID: "CUST-001" },
+    Supplier: {
+      Name: "Stash Corp",
+      ID: "SUP-001",
+      PostalAddress: { Country: "AU" },
+    },
+    Customer: {
+      Name: "Client Ltd",
+      ID: "CUST-001",
+      PostalAddress: { Country: "AU" },
+    },
     LegalMonetaryTotal: {
       Currency: "EUR",
       LineExtensionAmount: 1436.5,
@@ -42,7 +50,10 @@ describe("S3 Tests", () => {
   let s3Key;
 
   beforeAll(async () => {
-    const result = await createInvoice("18eebbc2-8162-4bdd-b272-dd47dc81e7a8", validInvoice());
+    const result = await createInvoice(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+      validInvoice(),
+    );
     dynamoInvoiceId = result.invoiceId;
   });
 
@@ -60,8 +71,8 @@ describe("S3 Tests", () => {
   });
 
   test("gets presigned URL for existing invoice from DynamoDB", async () => {
-    const transformed = await transformInvoice(dynamoInvoiceId);
-    const url = await getXmlUrl(transformed.invoiceXml);
+    await transformInvoice(dynamoInvoiceId);
+    const url = await getXmlUrl(`invoices/${dynamoInvoiceId}.xml`);
     expect(url).toBeDefined();
   });
 });

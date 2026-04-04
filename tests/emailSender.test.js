@@ -7,33 +7,45 @@ function validInvoice() {
     ProfileID: "Profile 1",
     IssueDate: "2024-01-15",
     DueDate: "2024-02-15",
+    DocumentCurrencyCode: "EUR",
+
     OrderReference: {
       ID: "ORD-001",
     },
+
     Delivery: {
       ActualDeliveryDate: "2024-01-14",
       ActualDeliveryTime: "14:30:00",
     },
+
     PaymentMeans: {
       PaymentMeansCode: "30",
       PaymentDueDate: "2024-02-15",
       PayeeFinancialAccount: {
         ID: "GB29NWBK60161331926819",
         Name: "Stash Corp",
-        Currency: "AUD",
       },
     },
+
     Supplier: {
       Name: "Stash Corp",
       ID: "SUP-001",
+      PostalAddress: {
+        Country: "AU",
+      },
     },
+
     Customer: {
       Name: "Client Ltd",
       ID: "CUST-001",
       Email: "umum2169@gmail.com",
+      PostalAddress: {
+        Country: "AU",
+      },
     },
+
     LegalMonetaryTotal: {
-      Currency: "AUD",
+      Currency: "EUR",
       LineExtensionAmount: 1436.5,
       TaxExclusiveAmount: 1436.5,
       TaxInclusiveAmount: 1729,

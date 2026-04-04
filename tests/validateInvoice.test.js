@@ -6,172 +6,182 @@ function validInvoice() {
     ProfileID: "Profile 1",
     IssueDate: "2024-01-15",
     DueDate: "2024-02-15",
-    
+    DocumentCurrencyCode: "EUR",
+
     OrderReference: {
-        ID: "ORD-001",
+      ID: "ORD-001",
     },
 
     Delivery: {
-        ActualDeliveryDate: "2024-01-14",
-        ActualDeliveryTime: "14:30:00",
+      ActualDeliveryDate: "2024-01-14",
+      ActualDeliveryTime: "14:30:00",
     },
 
     PaymentMeans: {
-        PaymentMeansCode: "30",
-        PaymentDueDate: "2024-02-15",
-        PayeeFinancialAccount: {
-            ID: "GB29NWBK60161331926819",
-            Name: "Stash Corp",
-            Currency: "EUR",
-        },
+      PaymentMeansCode: "30",
+      PaymentDueDate: "2024-02-15",
+      PayeeFinancialAccount: {
+        ID: "GB29NWBK60161331926819",
+        Name: "Stash Corp",
+      },
     },
 
     Supplier: {
-        Name: "Stash Corp",
-        ID: "SUP-001",
+      Name: "Stash Corp",
+      ID: "SUP-001",
+      PostalAddress: {
+        Country: "AU",
+      },
     },
 
     Customer: {
-        Name: "Client Ltd",
-        ID: "CUST-001",
+      Name: "Client Ltd",
+      ID: "CUST-001",
+      PostalAddress: {
+        Country: "AU",
+      },
     },
 
     LegalMonetaryTotal: {
-        Currency: "EUR",
-        LineExtensionAmount: 1436.5,
-        TaxExclusiveAmount: 1436.5,
-        TaxInclusiveAmount: 1729,
-        AllowanceTotalAmount: 100,
-        ChargeTotalAmount: 100,
-        PrepaidAmount: 1000,
-        PayableAmount: 729,
-        },
-    };
+      Currency: "EUR",
+      LineExtensionAmount: 1436.5,
+      TaxExclusiveAmount: 1436.5,
+      TaxInclusiveAmount: 1729,
+      AllowanceTotalAmount: 100,
+      ChargeTotalAmount: 100,
+      PrepaidAmount: 1000,
+      PayableAmount: 729,
+    },
+  };
 }
 
 describe("Validate Invoice tests", () => {
-    let invoiceId;
+  let invoiceId;
 
-    beforeAll(async () => {
-        // Create and transform invoice before running validate tests
-        const invoice = await createInvoice(
-            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
-            validInvoice(),
-        );
+  beforeAll(async () => {
+    const invoice = await createInvoice(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+      validInvoice(),
+    );
+    invoiceId = invoice.invoiceId;
+    await transformInvoice(invoiceId);
+  });
 
-        invoiceId = invoice.invoiceId;
-        await transformInvoice(invoiceId);
+  test("validates a valid transformed invoice successfully", async () => {
+    const result = await validateInvoice(invoiceId);
+    expect(result.invoiceId).toBe(invoiceId);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  test("returns invoiceId in response", async () => {
+    const result = await validateInvoice(invoiceId);
+    expect(result.invoiceId).toBeDefined();
+    expect(result.invoiceId).toBe(invoiceId);
+  });
+
+  test("returns errors array in response", async () => {
+    const result = await validateInvoice(invoiceId);
+    expect(result.errors).toBeDefined();
+    expect(Array.isArray(result.errors)).toBe(true);
+  });
+
+  test("throws 404 for non existent invoiceId", async () => {
+    await expect(validateInvoice("non-existent-id")).rejects.toMatchObject({
+      status: 404,
+      message: "Invoice not found",
     });
+  });
 
-    test("validates a valid transformed invoice successfully", async () => {
-        const result = await validateInvoice(invoiceId);
-        expect(result.invoiceId).toBe(invoiceId);
-        expect(result.valid).toBe(true);
-        expect(result.errors).toHaveLength(0);
+  test("throws 400 if invoice has not been transformed", async () => {
+    const untransformed = await createInvoice(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+      validInvoice(),
+    );
+    await expect(
+      validateInvoice(untransformed.invoiceId),
+    ).rejects.toMatchObject({
+      status: 400,
+      message: "Invoice has not been transformed yet, call /transform first",
     });
-
-    test("returns invoiceId in response", async () => {
-        const result = await validateInvoice(invoiceId);
-        expect(result.invoiceId).toBeDefined();
-        expect(result.invoiceId).toBe(invoiceId);
-    });
-
-    test("returns errors array in response", async () => {
-        const result = await validateInvoice(invoiceId);
-        expect(result.errors).toBeDefined();
-        expect(Array.isArray(result.errors)).toBe(true);
-    });
-
-    test("throws 404 for non existent invoiceId", async () => {
-        await expect(validateInvoice("non-existent-id")).rejects.toMatchObject({
-            status: 404,
-            message: "Invoice not found",
-        });
-    });
-
-    test("throws 400 if invoice has not been transformed", async () => {
-        // Create a fresh invoice without transforming it
-        const untransformed = await createInvoice(
-            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
-            validInvoice(),
-        );
-        
-        await expect(validateInvoice(untransformed.invoiceId)).rejects.toMatchObject({
-            status: 400,
-            message: "Invoice has not been transformed yet, call /transform first",
-        });
-    });
+  });
 });
 
 describe("Business rule validation tests", () => {
-    let invoiceId;
+  let invoiceId;
 
-    beforeAll(async () => {
-        const invoice = await createInvoice(
-            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
-            validInvoice(),
-        );
-        invoiceId = invoice.invoiceId;
-        await transformInvoice(invoiceId);
-    });
+  beforeAll(async () => {
+    const invoice = await createInvoice(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+      validInvoice(),
+    );
+    invoiceId = invoice.invoiceId;
+    await transformInvoice(invoiceId);
+  });
 
-    test("returns error when TaxInclusiveAmount is less than TaxExclusiveAmount", async () => {
-        const badInvoice = validInvoice();
-        badInvoice.LegalMonetaryTotal.TaxInclusiveAmount = 100;
-        badInvoice.LegalMonetaryTotal.TaxExclusiveAmount = 200;
-        badInvoice.LegalMonetaryTotal.PayableAmount = 100;
+  test("returns error when TaxInclusiveAmount is less than TaxExclusiveAmount", async () => {
+    const badInvoice = validInvoice();
+    badInvoice.LegalMonetaryTotal.TaxInclusiveAmount = 100;
+    badInvoice.LegalMonetaryTotal.TaxExclusiveAmount = 200;
+    badInvoice.LegalMonetaryTotal.PayableAmount = 100;
 
-        const invoice = await createInvoice(
-            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
-            badInvoice,
-        );
-        await transformInvoice(invoice.invoiceId);
-        const result = await validateInvoice(invoice.invoiceId);
-        expect(result.valid).toBe(false);
-        expect(result.errors.some(e => e.message.includes("TaxInclusiveAmount"))).toBe(true);
-    });
+    const invoice = await createInvoice(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+      badInvoice,
+    );
+    await transformInvoice(invoice.invoiceId);
+    const result = await validateInvoice(invoice.invoiceId);
+    expect(result.valid).toBe(false);
+    expect(
+      result.errors.some((e) => e.message.includes("TaxInclusiveAmount")),
+    ).toBe(true);
+  });
 
-    test("returns error when PayableAmount is incorrect", async () => {
-        const badInvoice = validInvoice();
-        badInvoice.LegalMonetaryTotal.PayableAmount = 999;
+  test("returns error when PayableAmount is incorrect", async () => {
+    const badInvoice = validInvoice();
+    badInvoice.LegalMonetaryTotal.PayableAmount = 999;
 
-        const invoice = await createInvoice(
-            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
-            badInvoice,
-        );
-        await transformInvoice(invoice.invoiceId);
-        const result = await validateInvoice(invoice.invoiceId);
-        expect(result.valid).toBe(false);
-        expect(result.errors.some(e => e.message.includes("PayableAmount"))).toBe(true);
-    });
+    const invoice = await createInvoice(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+      badInvoice,
+    );
+    await transformInvoice(invoice.invoiceId);
+    const result = await validateInvoice(invoice.invoiceId);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.message.includes("PayableAmount"))).toBe(
+      true,
+    );
+  });
 
-    test("returns error when DueDate is before IssueDate", async () => {
-        const badInvoice = validInvoice();
-        badInvoice.IssueDate = "2024-06-01";
-        badInvoice.DueDate = "2024-01-01";
+  test("returns error when DueDate is before IssueDate", async () => {
+    const badInvoice = validInvoice();
+    badInvoice.IssueDate = "2024-06-01";
+    badInvoice.DueDate = "2024-01-01";
 
-        const invoice = await createInvoice(
-            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
-            badInvoice,
-        );
-        await transformInvoice(invoice.invoiceId);
-        const result = await validateInvoice(invoice.invoiceId);
-        expect(result.valid).toBe(false);
-        expect(result.errors.some(e => e.message.includes("DueDate"))).toBe(true);
-    });
+    const invoice = await createInvoice(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+      badInvoice,
+    );
+    await transformInvoice(invoice.invoiceId);
+    const result = await validateInvoice(invoice.invoiceId);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((e) => e.message.includes("DueDate"))).toBe(true);
+  });
 
-    test("returns error when currency is inconsistent", async () => {
-        const badInvoice = validInvoice();
-        badInvoice.LegalMonetaryTotal.Currency = "USD";
-        badInvoice.PaymentMeans.PayeeFinancialAccount.Currency = "EUR";
+  test("returns error when currency is inconsistent", async () => {
+    const badInvoice = validInvoice();
+    badInvoice.LegalMonetaryTotal.Currency = "USD";
+    badInvoice.DocumentCurrencyCode = "EUR";
 
-        const invoice = await createInvoice(
-            "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
-            badInvoice,
-        );
-        await transformInvoice(invoice.invoiceId);
-        const result = await validateInvoice(invoice.invoiceId);
-        expect(result.valid).toBe(false);
-        expect(result.errors.some(e => e.message.includes("Currency mismatch"))).toBe(true);
-    });
+    const invoice = await createInvoice(
+      "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
+      badInvoice,
+    );
+    await transformInvoice(invoice.invoiceId);
+    const result = await validateInvoice(invoice.invoiceId);
+    expect(result.valid).toBe(false);
+    expect(
+      result.errors.some((e) => e.message.includes("Currency mismatch")),
+    ).toBe(true);
+  });
 });
