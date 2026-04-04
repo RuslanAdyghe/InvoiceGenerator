@@ -23,7 +23,7 @@ function deliveryFragment(delivery) {
   return frag;
 }
 
-function paymentMeansFragment(paymentMeans) {
+function paymentMeansFragment(paymentMeans, currency) {
   const pfa = paymentMeans.PayeeFinancialAccount;
 
   const frag = fragment()
@@ -45,8 +45,8 @@ function paymentMeansFragment(paymentMeans) {
     .txt(pfa.Name)
     .up()
     .ele("cbc:CurrencyCode")
-    .att("currencyID", pfa.Currency)
-    .txt(pfa.Currency)
+    .att("currencyID", currency)
+    .txt(currency)
     .up()
     .up();
 
@@ -247,7 +247,9 @@ function toUBLXml(invoice) {
   // Sections
   root.import(orderReferenceFragment(invoice.OrderReference));
   root.import(deliveryFragment(invoice.Delivery));
-  root.import(paymentMeansFragment(invoice.PaymentMeans));
+  root.import(
+    paymentMeansFragment(invoice.PaymentMeans, invoice.DocumentCurrencyCode),
+  );
   root.import(supplierFragment(invoice.Supplier));
   root.import(customerFragment(invoice.Customer));
   root.import(legalMonetaryTotalFragment(invoice.LegalMonetaryTotal));
