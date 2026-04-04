@@ -56,11 +56,61 @@ function paymentMeansFragment(paymentMeans) {
 function supplierFragment(supplier) {
   const party = fragment().ele("cac:AccountingSupplierParty").ele("cac:Party");
 
-  if (supplier.ID) {
-    party.ele("cbc:EndpointID").txt(supplier.ID).up();
+  if (supplier.EndpointID) {
+    party.ele("cbc:EndpointID").txt(supplier.EndpointID).up();
   }
 
-  party.ele("cac:PartyName").ele("cbc:Name").txt(supplier.Name).up().up();
+  if (supplier.TradingName) {
+    party
+      .ele("cac:PartyName")
+      .ele("cbc:Name")
+      .txt(supplier.TradingName)
+      .up()
+      .up();
+  }
+
+  party
+    .ele("cac:PartyLegalEntity")
+    .ele("cbc:RegistrationName")
+    .txt(supplier.Name)
+    .up()
+    .up();
+
+  if (supplier.ID) {
+    party
+      .ele("cac:PartyIdentification")
+      .ele("cbc:ID")
+      .txt(supplier.ID)
+      .up()
+      .up();
+  }
+
+  if (supplier.PostalAddress) {
+    const addr = party.ele("cac:PostalAddress");
+    if (supplier.PostalAddress.StreetName)
+      addr.ele("cbc:StreetName").txt(supplier.PostalAddress.StreetName).up();
+    if (supplier.PostalAddress.AdditionalStreetName)
+      addr
+        .ele("cbc:AdditionalStreetName")
+        .txt(supplier.PostalAddress.AdditionalStreetName)
+        .up();
+    if (supplier.PostalAddress.CityName)
+      addr.ele("cbc:CityName").txt(supplier.PostalAddress.CityName).up();
+    if (supplier.PostalAddress.PostalZone)
+      addr.ele("cbc:PostalZone").txt(supplier.PostalAddress.PostalZone).up();
+    if (supplier.PostalAddress.CountrySubentity)
+      addr
+        .ele("cbc:CountrySubentity")
+        .txt(supplier.PostalAddress.CountrySubentity)
+        .up();
+    addr
+      .ele("cac:Country")
+      .ele("cbc:IdentificationCode")
+      .txt(supplier.PostalAddress.Country)
+      .up()
+      .up();
+    addr.up();
+  }
 
   return party.up().up();
 }
@@ -68,11 +118,61 @@ function supplierFragment(supplier) {
 function customerFragment(customer) {
   const party = fragment().ele("cac:AccountingCustomerParty").ele("cac:Party");
 
-  if (customer.ID) {
-    party.ele("cbc:EndpointID").txt(customer.ID).up();
+  if (customer.EndpointID) {
+    party.ele("cbc:EndpointID").txt(customer.EndpointID).up();
   }
 
-  party.ele("cac:PartyName").ele("cbc:Name").txt(customer.Name).up().up();
+  if (customer.TradingName) {
+    party
+      .ele("cac:PartyName")
+      .ele("cbc:Name")
+      .txt(customer.TradingName)
+      .up()
+      .up();
+  }
+
+  party
+    .ele("cac:PartyLegalEntity")
+    .ele("cbc:RegistrationName")
+    .txt(customer.Name)
+    .up()
+    .up();
+
+  if (customer.ID) {
+    party
+      .ele("cac:PartyIdentification")
+      .ele("cbc:ID")
+      .txt(customer.ID)
+      .up()
+      .up();
+  }
+
+  if (customer.PostalAddress) {
+    const addr = party.ele("cac:PostalAddress");
+    if (customer.PostalAddress.StreetName)
+      addr.ele("cbc:StreetName").txt(customer.PostalAddress.StreetName).up();
+    if (customer.PostalAddress.AdditionalStreetName)
+      addr
+        .ele("cbc:AdditionalStreetName")
+        .txt(customer.PostalAddress.AdditionalStreetName)
+        .up();
+    if (customer.PostalAddress.CityName)
+      addr.ele("cbc:CityName").txt(customer.PostalAddress.CityName).up();
+    if (customer.PostalAddress.PostalZone)
+      addr.ele("cbc:PostalZone").txt(customer.PostalAddress.PostalZone).up();
+    if (customer.PostalAddress.CountrySubentity)
+      addr
+        .ele("cbc:CountrySubentity")
+        .txt(customer.PostalAddress.CountrySubentity)
+        .up();
+    addr
+      .ele("cac:Country")
+      .ele("cbc:IdentificationCode")
+      .txt(customer.PostalAddress.Country)
+      .up()
+      .up();
+    addr.up();
+  }
 
   return party.up().up();
 }
