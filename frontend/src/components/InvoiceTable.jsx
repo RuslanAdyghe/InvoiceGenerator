@@ -15,7 +15,7 @@ function InvoiceTable({
     const token = localStorage.getItem("token");
     try {
       const response = await fetch(
-        `http://localhost:3000/invoices/${invoiceId}`,
+        `${import.meta.env.VITE_API_URL}/invoices/${invoiceId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
