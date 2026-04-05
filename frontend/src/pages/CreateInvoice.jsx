@@ -50,7 +50,6 @@ export default function CreateInvoice() {
       Contact: { Name: "", Telephone: "", ElectronicMail: "" },
     },
     LegalMonetaryTotal: {
-      Currency: "",
       LineExtensionAmount: 0,
       TaxExclusiveAmount: 0,
       TaxInclusiveAmount: 0,
@@ -103,8 +102,8 @@ export default function CreateInvoice() {
       return "Customer email is required";
     }
 
-    if (!formData.LegalMonetaryTotal.Currency.trim()) {
-      return "Currency is required";
+    if (!formData.DocumentCurrencyCode.trim()) {
+      return "Document currency code is required";
     }
 
     if (formData.LegalMonetaryTotal.PayableAmount <= 0) {
