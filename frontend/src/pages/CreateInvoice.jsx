@@ -20,10 +20,35 @@ export default function CreateInvoice() {
     PaymentMeans: {
       PaymentMeansCode: "",
       PaymentDueDate: "",
-      PayeeFinancialAccount: { ID: "", Name: "", Currency: "" },
+      PayeeFinancialAccount: { ID: "", Name: "" },
     },
-    Supplier: { Name: "", ID: "" },
-    Customer: { Name: "", ID: "", Email: "" },
+    Supplier: {
+      Name: "",
+      TradingName: "",
+      PostalAddress: {
+        StreetName: "",
+        AdditionalStreetName: "",
+        CityName: "",
+        PostalZone: "",
+        CountrySubentity: "",
+        Country: "",
+      },
+      Contact: { Name: "", Telephone: "", ElectronicMail: "" },
+    },
+    Customer: {
+      Name: "",
+      TradingName: "",
+      Email: "",
+      PostalAddress: {
+        StreetName: "",
+        AdditionalStreetName: "",
+        CityName: "",
+        PostalZone: "",
+        CountrySubentity: "",
+        Country: "",
+      },
+      Contact: { Name: "", Telephone: "", ElectronicMail: "" },
+    },
     LegalMonetaryTotal: {
       Currency: "",
       LineExtensionAmount: 0,
@@ -108,48 +133,16 @@ export default function CreateInvoice() {
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
-    setSuccessMessage("");
-    setInvoiceXml("");
-
-    const allowedTypes = [
-      "application/pdf",
-      "text/csv",
-      "application/vnd.ms-excel",
-    ];
-
-    const isValidExtension =
-      file.name.toLowerCase().endsWith(".pdf") ||
-      file.name.toLowerCase().endsWith(".csv");
-
-    if (!allowedTypes.includes(file.type) && !isValidExtension) {
-      showErrorModal("Only PDF or CSV files are allowed");
-      return;
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      showErrorModal("File size must be under 5MB");
-      return;
-    }
-
     setExtracting(true);
-
+    setError("");
     try {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
-
       const res = await fetch("http://localhost:3000/invoices/extract", {
         method: "POST",
         body: formDataUpload,
       });
-
-      let data;
-      try {
-        data = await res.json();
-      } catch {
-        data = null;
-      }
-
+      const data = await res.json();
       if (!res.ok) {
         showErrorModal(getErrorMessage(data, "Failed to extract invoice data"));
         return;
@@ -194,6 +187,7 @@ export default function CreateInvoice() {
       }));
 
       setSuccessMessage("Invoice data extracted successfully");
+      setFormData((prev) => deepMerge(prev, data.invoiceData));
     } catch (err) {
       showErrorModal(
         err.message === "Failed to fetch"
@@ -210,34 +204,13 @@ export default function CreateInvoice() {
     setInvoiceXml("");
 
     const userId = localStorage.getItem("userId");
-
-    if (!userId) {
-      showErrorModal("User not authenticated. Please log in again.");
-      return;
-    }
-
-    const validationError = validateForm();
-    if (validationError) {
-      showErrorModal(validationError);
-      return;
-    }
-
-    setLoading(true);
-
     try {
       const response = await fetch("http://localhost:3000/invoices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, invoiceData: formData }),
       });
-
-      let data;
-      try {
-        data = await response.json();
-      } catch {
-        data = null;
-      }
-
+      const data = await response.json();
       if (!response.ok) {
         showErrorModal(getErrorMessage(data, "Failed to create invoice"));
         return;
@@ -247,46 +220,23 @@ export default function CreateInvoice() {
         showErrorModal("Invoice was created but no invoice ID was returned");
         return;
       }
-
       const transformResponse = await fetch(
         `http://localhost:3000/invoices/${data.invoiceId}/transform`,
         { method: "POST" },
       );
-
-      let transformData;
-      try {
-        transformData = await transformResponse.json();
-      } catch {
-        transformData = null;
-      }
-
+      const transformData = await transformResponse.json();
       if (!transformResponse.ok) {
         showErrorModal(
           getErrorMessage(transformData, "Failed to transform invoice"),
         );
         return;
       }
-
-      if (!transformData?.invoiceXml) {
-        showErrorModal("Invoice transformed successfully, but no XML was returned");
-        return;
-      }
-
-      const emailResponse = await fetch(
+      await fetch(
         `http://localhost:3000/invoices/${data.invoiceId}/send-email`,
         {
           method: "POST",
         },
       );
-
-      if (!emailResponse.ok) {
-        setInvoiceXml(transformData.invoiceXml);
-        setSuccessMessage(
-          "Invoice created successfully, but email could not be sent.",
-        );
-        return;
-      }
-
       setInvoiceXml(transformData.invoiceXml);
       setSuccessMessage("Invoice created and emailed successfully");
     } catch (err) {
@@ -298,6 +248,22 @@ export default function CreateInvoice() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const deepMerge = (target, source) => {
+    const output = { ...target };
+    for (const key in source) {
+      if (
+        source[key] &&
+        typeof source[key] === "object" &&
+        !Array.isArray(source[key])
+      ) {
+        output[key] = deepMerge(target[key] || {}, source[key]);
+      } else {
+        output[key] = source[key] ?? "";
+      }
+    }
+    return output;
   };
 
   return (
@@ -376,6 +342,14 @@ export default function CreateInvoice() {
               value={formData.DueDate}
               onChange={(e) => handleChange("DueDate", e.target.value)}
             />
+            <input
+              className={inputClass}
+              placeholder="Currency Code (e.g. AUD)"
+              value={formData.DocumentCurrencyCode}
+              onChange={(e) =>
+                handleChange("DocumentCurrencyCode", e.target.value)
+              }
+            />
 
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Order Reference
@@ -450,18 +424,6 @@ export default function CreateInvoice() {
                 )
               }
             />
-            <input
-              className={inputClass}
-              placeholder="Currency"
-              value={formData.PaymentMeans.PayeeFinancialAccount.Currency}
-              onChange={(e) =>
-                handleChange(
-                  "PaymentMeans.PayeeFinancialAccount.Currency",
-                  e.target.value,
-                )
-              }
-            />
-
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Supplier
             </h2>
@@ -473,9 +435,99 @@ export default function CreateInvoice() {
             />
             <input
               className={inputClass}
-              placeholder="Supplier ID"
-              value={formData.Supplier.ID}
-              onChange={(e) => handleChange("Supplier.ID", e.target.value)}
+              placeholder="Supplier Trading Name"
+              value={formData.Supplier.TradingName}
+              onChange={(e) =>
+                handleChange("Supplier.TradingName", e.target.value)
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="Street Address"
+              value={formData.Supplier.PostalAddress.StreetName}
+              onChange={(e) =>
+                handleChange(
+                  "Supplier.PostalAddress.StreetName",
+                  e.target.value,
+                )
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="Address Line 2"
+              value={formData.Supplier.PostalAddress.AdditionalStreetName}
+              onChange={(e) =>
+                handleChange(
+                  "Supplier.PostalAddress.AdditionalStreetName",
+                  e.target.value,
+                )
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="City"
+              value={formData.Supplier.PostalAddress.CityName}
+              onChange={(e) =>
+                handleChange("Supplier.PostalAddress.CityName", e.target.value)
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="Post Code"
+              value={formData.Supplier.PostalAddress.PostalZone}
+              onChange={(e) =>
+                handleChange(
+                  "Supplier.PostalAddress.PostalZone",
+                  e.target.value,
+                )
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="State / Region"
+              value={formData.Supplier.PostalAddress.CountrySubentity}
+              onChange={(e) =>
+                handleChange(
+                  "Supplier.PostalAddress.CountrySubentity",
+                  e.target.value,
+                )
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="Country Code (e.g. AU)"
+              value={formData.Supplier.PostalAddress.Country}
+              onChange={(e) =>
+                handleChange("Supplier.PostalAddress.Country", e.target.value)
+              }
+            />
+
+            <h3 className="text-md font-medium text-gray-600 mb-3 mt-2">
+              Supplier Contact
+            </h3>
+            <input
+              className={inputClass}
+              placeholder="Contact Name"
+              value={formData.Supplier.Contact.Name}
+              onChange={(e) =>
+                handleChange("Supplier.Contact.Name", e.target.value)
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="Contact Phone"
+              value={formData.Supplier.Contact.Telephone}
+              onChange={(e) =>
+                handleChange("Supplier.Contact.Telephone", e.target.value)
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="Contact Email"
+              value={formData.Supplier.Contact.ElectronicMail}
+              onChange={(e) =>
+                handleChange("Supplier.Contact.ElectronicMail", e.target.value)
+              }
             />
 
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
@@ -489,6 +541,14 @@ export default function CreateInvoice() {
             />
             <input
               className={inputClass}
+              placeholder="Customer Trading Name"
+              value={formData.Customer.TradingName}
+              onChange={(e) =>
+                handleChange("Customer.TradingName", e.target.value)
+              }
+            />
+            <input
+              className={inputClass}
               placeholder="Customer ID"
               value={formData.Customer.ID}
               onChange={(e) => handleChange("Customer.ID", e.target.value)}
@@ -499,18 +559,98 @@ export default function CreateInvoice() {
               value={formData.Customer.Email}
               onChange={(e) => handleChange("Customer.Email", e.target.value)}
             />
+            <input
+              className={inputClass}
+              placeholder="Street Address"
+              value={formData.Customer.PostalAddress.StreetName}
+              onChange={(e) =>
+                handleChange(
+                  "Customer.PostalAddress.StreetName",
+                  e.target.value,
+                )
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="Address Line 2"
+              value={formData.Customer.PostalAddress.AdditionalStreetName}
+              onChange={(e) =>
+                handleChange(
+                  "Customer.PostalAddress.AdditionalStreetName",
+                  e.target.value,
+                )
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="City"
+              value={formData.Customer.PostalAddress.CityName}
+              onChange={(e) =>
+                handleChange("Customer.PostalAddress.CityName", e.target.value)
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="Post Code"
+              value={formData.Customer.PostalAddress.PostalZone}
+              onChange={(e) =>
+                handleChange(
+                  "Customer.PostalAddress.PostalZone",
+                  e.target.value,
+                )
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="State / Region"
+              value={formData.Customer.PostalAddress.CountrySubentity}
+              onChange={(e) =>
+                handleChange(
+                  "Customer.PostalAddress.CountrySubentity",
+                  e.target.value,
+                )
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="Country Code (e.g. AU)"
+              value={formData.Customer.PostalAddress.Country}
+              onChange={(e) =>
+                handleChange("Customer.PostalAddress.Country", e.target.value)
+              }
+            />
+
+            <h3 className="text-md font-medium text-gray-600 mb-3 mt-2">
+              Customer Contact
+            </h3>
+            <input
+              className={inputClass}
+              placeholder="Contact Name"
+              value={formData.Customer.Contact.Name}
+              onChange={(e) =>
+                handleChange("Customer.Contact.Name", e.target.value)
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="Contact Phone"
+              value={formData.Customer.Contact.Telephone}
+              onChange={(e) =>
+                handleChange("Customer.Contact.Telephone", e.target.value)
+              }
+            />
+            <input
+              className={inputClass}
+              placeholder="Contact Email"
+              value={formData.Customer.Contact.ElectronicMail}
+              onChange={(e) =>
+                handleChange("Customer.Contact.ElectronicMail", e.target.value)
+              }
+            />
 
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Legal Monetary Total
             </h2>
-            <input
-              className={inputClass}
-              placeholder="Currency"
-              value={formData.LegalMonetaryTotal.Currency}
-              onChange={(e) =>
-                handleChange("LegalMonetaryTotal.Currency", e.target.value)
-              }
-            />
             <input
               className={inputClass}
               type="number"
@@ -519,7 +659,7 @@ export default function CreateInvoice() {
               onChange={(e) =>
                 handleChange(
                   "LegalMonetaryTotal.LineExtensionAmount",
-                  safeParseNumber(e.target.value),
+                  e.target.value === "" ? "" : parseFloat(e.target.value),
                 )
               }
             />
@@ -531,7 +671,7 @@ export default function CreateInvoice() {
               onChange={(e) =>
                 handleChange(
                   "LegalMonetaryTotal.TaxExclusiveAmount",
-                  safeParseNumber(e.target.value),
+                  e.target.value === "" ? "" : parseFloat(e.target.value),
                 )
               }
             />
@@ -543,7 +683,7 @@ export default function CreateInvoice() {
               onChange={(e) =>
                 handleChange(
                   "LegalMonetaryTotal.TaxInclusiveAmount",
-                  safeParseNumber(e.target.value),
+                  e.target.value === "" ? "" : parseFloat(e.target.value),
                 )
               }
             />
@@ -555,7 +695,7 @@ export default function CreateInvoice() {
               onChange={(e) =>
                 handleChange(
                   "LegalMonetaryTotal.AllowanceTotalAmount",
-                  safeParseNumber(e.target.value),
+                  e.target.value === "" ? "" : parseFloat(e.target.value),
                 )
               }
             />
@@ -567,7 +707,7 @@ export default function CreateInvoice() {
               onChange={(e) =>
                 handleChange(
                   "LegalMonetaryTotal.ChargeTotalAmount",
-                  safeParseNumber(e.target.value),
+                  e.target.value === "" ? "" : parseFloat(e.target.value),
                 )
               }
             />
@@ -579,7 +719,7 @@ export default function CreateInvoice() {
               onChange={(e) =>
                 handleChange(
                   "LegalMonetaryTotal.PrepaidAmount",
-                  safeParseNumber(e.target.value),
+                  e.target.value === "" ? "" : parseFloat(e.target.value),
                 )
               }
             />
@@ -591,7 +731,7 @@ export default function CreateInvoice() {
               onChange={(e) =>
                 handleChange(
                   "LegalMonetaryTotal.PayableAmount",
-                  safeParseNumber(e.target.value),
+                  e.target.value === "" ? "" : parseFloat(e.target.value),
                 )
               }
             />

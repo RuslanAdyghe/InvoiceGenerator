@@ -32,6 +32,14 @@
       "format": "date",
       "description": "Date payment is due"
     },
+    "InvoiceTypeCode": {
+      "type": "string",
+      "description": "Invoice type code"
+    },
+    "DocumentCurrencyCode": {
+      "type": "string",
+      "description": "Invoice currency code"
+    },
     "OrderReference": {
       "type": "object",
       "required": ["ID"],
@@ -73,7 +81,7 @@
         },
         "PayeeFinancialAccount": {
           "type": "object",
-          "required": ["ID", "Name", "Currency"],
+          "required": ["ID", "Name"],
           "properties": {
             "ID": {
               "type": "string",
@@ -82,10 +90,6 @@
             "Name": {
               "type": "string",
               "description": "Account holder name"
-            },
-            "Currency": {
-              "type": "string",
-              "description": "ISO currency code"
             }
           }
         }
@@ -97,14 +101,9 @@
         "LineExtensionAmount",
         "TaxExclusiveAmount",
         "TaxInclusiveAmount",
-        "PayableAmount",
-        "Currency"
+        "PayableAmount"
       ],
       "properties": {
-        "Currency": {
-          "type": "string",
-          "description": "ISO currency code applied to all monetary amounts"
-        },
         "LineExtensionAmount": {
           "type": "number",
           "description": "Sum of all invoice line amounts before tax"
@@ -137,29 +136,69 @@
     },
     "Supplier": {
       "type": "object",
-      "required": ["Name"],
+      "required": ["Name", "PostalAddress"],
       "properties": {
-        "Name": {
+        "Name": { "type": "string", "description": "Supplier legal name" },
+        "TradingName": {
           "type": "string",
-          "description": "Supplier (seller) name"
+          "description": "Supplier trading name"
         },
-        "ID": {
-          "type": "string",
-          "description": "Optional supplier identifier"
+        "PostalAddress": {
+          "type": "object",
+          "required": ["Country"],
+          "properties": {
+            "StreetName": { "type": "string" },
+            "AdditionalStreetName": { "type": "string" },
+            "CityName": { "type": "string" },
+            "PostalZone": { "type": "string" },
+            "CountrySubentity": { "type": "string" },
+            "Country": {
+              "type": "string",
+              "description": "Country code - required per IBR-009"
+            }
+          }
+        },
+        "Contact": {
+          "type": "object",
+          "properties": {
+            "Name": { "type": "string" },
+            "Telephone": { "type": "string" },
+            "ElectronicMail": { "type": "string" }
+          }
         }
       }
     },
     "Customer": {
       "type": "object",
-      "required": ["Name"],
+      "required": ["Name", "PostalAddress"],
       "properties": {
-        "Name": {
+        "Name": { "type": "string", "description": "Customer legal name" },
+        "TradingName": {
           "type": "string",
-          "description": "Customer (payer) name"
+          "description": "Customer trading name"
         },
-        "ID": {
-          "type": "string",
-          "description": "Optional customer identifier"
+        "PostalAddress": {
+          "type": "object",
+          "required": ["Country"],
+          "properties": {
+            "StreetName": { "type": "string" },
+            "AdditionalStreetName": { "type": "string" },
+            "CityName": { "type": "string" },
+            "PostalZone": { "type": "string" },
+            "CountrySubentity": { "type": "string" },
+            "Country": {
+              "type": "string",
+              "description": "Country code - required per IBR-009"
+            }
+          }
+        },
+        "Contact": {
+          "type": "object",
+          "properties": {
+            "Name": { "type": "string" },
+            "Telephone": { "type": "string" },
+            "ElectronicMail": { "type": "string" }
+          }
         }
       }
     }

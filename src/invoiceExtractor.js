@@ -6,11 +6,17 @@ const client = new Anthropic({
 });
 
 const SYSTEM_PROMPT = `You are an invoice data extractor. Extract invoice fields and return ONLY valid JSON with no extra text, matching this exact schema:
+
 {
+  "InvoiceID": "string",
   "ProfileID": "string",
   "IssueDate": "YYYY-MM-DD",
   "DueDate": "YYYY-MM-DD",
-  "OrderReference": { "ID": "string" },
+  "InvoiceTypeCode": "string",
+  "DocumentCurrencyCode": "string",
+  "OrderReference": {
+    "ID": "string"
+  },
   "Delivery": {
     "ActualDeliveryDate": "YYYY-MM-DD",
     "ActualDeliveryTime": "HH:MM:SS"
@@ -20,21 +26,58 @@ const SYSTEM_PROMPT = `You are an invoice data extractor. Extract invoice fields
     "PaymentDueDate": "YYYY-MM-DD",
     "PayeeFinancialAccount": {
       "ID": "string",
-      "Name": "string",
-      "Currency": "string"
+      "Name": "string"
     }
   },
-  "Supplier": { "ID": "string", "Name": "string" },
-  "Customer": { "ID": "string", "Name": "string" },
   "LegalMonetaryTotal": {
-    "Currency": "string",
-    "LineExtensionAmount": "string",
-    "TaxExclusiveAmount": "string",
-    "TaxInclusiveAmount": "string",
-    "PayableAmount": "string"
+    "LineExtensionAmount": "number",
+    "TaxExclusiveAmount": "number",
+    "TaxInclusiveAmount": "number",
+    "AllowanceTotalAmount": "number",
+    "ChargeTotalAmount": "number",
+    "PrepaidAmount": "number",
+    "PayableAmount": "number"
+  },
+  "Supplier": {
+    "EndpointID": "string",
+    "PartyName": "string",
+    "Name": "string",
+    "ID": "string",
+    "PostalAddress": {
+      "StreetName": "string",
+      "AdditionalStreetName": "string",
+      "CityName": "string",
+      "PostalZone": "string",
+      "CountrySubentity": "string",
+      "Country": "string"
+    }
+  },
+  "Customer": {
+    "EndpointID": "string",
+    "PartyName": "string",
+    "Name": "string",
+    "ID": "string",
+    "PostalAddress": {
+      "StreetName": "string",
+      "AdditionalStreetName": "string",
+      "CityName": "string",
+      "PostalZone": "string",
+      "CountrySubentity": "string",
+      "Country": "string"
+    }
   }
 }
-Use null for any fields you cannot find.`;
+
+Rules:
+- Use null for any fields you cannot find.
+- Dates must be in YYYY-MM-DD format.
+- Times must be in HH:MM:SS format.
+- All monetary values must be numbers (not strings).
+- Do not include any extra fields or text outside the JSON.
+- Ensure nested objects exist even if their fields are null.
+- InvoiceID is read-only; extract it only if explicitly present in the invoice.
+
+Return ONLY the JSON.`;
 
 export async function extractInvoiceFromFile(fileBuffer, mimeType) {
   const isCSV = mimeType === "text/csv";
