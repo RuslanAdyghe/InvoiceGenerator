@@ -261,10 +261,10 @@ function InvoiceDetail() {
                   </p>
                 </div>
                 <div>
-                  <span className="text-gray-400">Currency</span>
-                  <p className="text-gray-700">
-                    {d.PaymentMeans.PayeeFinancialAccount.Currency}
-                  </p>
+                  <div>
+                    <span className="text-gray-400">Currency</span>
+                    <p className="text-gray-700">{d.DocumentCurrencyCode}</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -274,7 +274,7 @@ function InvoiceDetail() {
             {/* Totals */}
             <div>
               <h2 className="text-lg font-semibold text-gray-800 mb-3">
-                Totals ({d.LegalMonetaryTotal.Currency})
+                Totals ({d.DocumentCurrencyCode})
               </h2>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">

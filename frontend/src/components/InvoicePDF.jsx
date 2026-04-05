@@ -105,8 +105,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default InvoicePDF;
-
 function InvoicePDF({ invoice }) {
   const d = invoice.invoice_data;
 
@@ -219,9 +217,7 @@ function InvoicePDF({ invoice }) {
             </View>
             <View style={styles.col}>
               <Text style={styles.label}>Currency</Text>
-              <Text style={styles.value}>
-                {d.PaymentMeans.PayeeFinancialAccount.Currency}
-              </Text>
+              <Text style={styles.value}>{d.DocumentCurrencyCode}</Text>
             </View>
           </View>
         </View>
@@ -231,7 +227,7 @@ function InvoicePDF({ invoice }) {
         {/* Totals */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Totals ({d.LegalMonetaryTotal.Currency})
+            Totals ({d.DocumentCurrencyCode})
           </Text>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Line Extension Amount</Text>
@@ -281,3 +277,4 @@ function InvoicePDF({ invoice }) {
     </Document>
   );
 }
+export default InvoicePDF;

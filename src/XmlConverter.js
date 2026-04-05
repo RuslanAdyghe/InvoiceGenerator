@@ -17,16 +17,13 @@ function deliveryFragment(delivery) {
     .up();
 
   if (delivery.ActualDeliveryTime) {
-    frag
-      .ele("cbc:ActualDeliveryTime")
-      .txt(delivery.ActualDeliveryTime)
-      .up();
+    frag.ele("cbc:ActualDeliveryTime").txt(delivery.ActualDeliveryTime).up();
   }
 
   return frag;
 }
 
-function paymentMeansFragment(paymentMeans) {
+function paymentMeansFragment(paymentMeans, currency) {
   const pfa = paymentMeans.PayeeFinancialAccount;
 
   const frag = fragment()
@@ -36,10 +33,7 @@ function paymentMeansFragment(paymentMeans) {
     .up();
 
   if (paymentMeans.PaymentDueDate) {
-    frag
-      .ele("cbc:PaymentDueDate")
-      .txt(paymentMeans.PaymentDueDate)
-      .up();
+    frag.ele("cbc:PaymentDueDate").txt(paymentMeans.PaymentDueDate).up();
   }
 
   frag
@@ -51,8 +45,8 @@ function paymentMeansFragment(paymentMeans) {
     .txt(pfa.Name)
     .up()
     .ele("cbc:CurrencyCode")
-    .att("currencyID", pfa.Currency)
-    .txt(pfa.Currency)
+    .att("currencyID", currency)
+    .txt(currency)
     .up()
     .up();
 
@@ -62,11 +56,62 @@ function paymentMeansFragment(paymentMeans) {
 function supplierFragment(supplier) {
   const party = fragment().ele("cac:AccountingSupplierParty").ele("cac:Party");
 
-  if (supplier.ID) {
-    party.ele("cbc:EndpointID").txt(supplier.ID).up();
+  if (supplier.TradingName) {
+    party
+      .ele("cac:PartyName")
+      .ele("cbc:Name")
+      .txt(supplier.TradingName)
+      .up()
+      .up();
   }
 
-  party.ele("cac:PartyName").ele("cbc:Name").txt(supplier.Name).up().up();
+  party
+    .ele("cac:PartyLegalEntity")
+    .ele("cbc:RegistrationName")
+    .txt(supplier.Name)
+    .up()
+    .up();
+
+  if (supplier.PostalAddress) {
+    const addr = party.ele("cac:PostalAddress");
+    if (supplier.PostalAddress.StreetName)
+      addr.ele("cbc:StreetName").txt(supplier.PostalAddress.StreetName).up();
+    if (supplier.PostalAddress.AdditionalStreetName)
+      addr
+        .ele("cbc:AdditionalStreetName")
+        .txt(supplier.PostalAddress.AdditionalStreetName)
+        .up();
+    if (supplier.PostalAddress.CityName)
+      addr.ele("cbc:CityName").txt(supplier.PostalAddress.CityName).up();
+    if (supplier.PostalAddress.PostalZone)
+      addr.ele("cbc:PostalZone").txt(supplier.PostalAddress.PostalZone).up();
+    if (supplier.PostalAddress.CountrySubentity)
+      addr
+        .ele("cbc:CountrySubentity")
+        .txt(supplier.PostalAddress.CountrySubentity)
+        .up();
+    addr
+      .ele("cac:Country")
+      .ele("cbc:IdentificationCode")
+      .txt(supplier.PostalAddress.Country)
+      .up()
+      .up();
+    addr.up();
+  }
+
+  if (supplier.Contact) {
+    const contact = party.ele("cac:Contact");
+    if (supplier.Contact.Name)
+      contact.ele("cbc:Name").txt(supplier.Contact.Name).up();
+    if (supplier.Contact.Telephone)
+      contact.ele("cbc:Telephone").txt(supplier.Contact.Telephone).up();
+    if (supplier.Contact.ElectronicMail)
+      contact
+        .ele("cbc:ElectronicMail")
+        .txt(supplier.Contact.ElectronicMail)
+        .up();
+    contact.up();
+  }
 
   return party.up().up();
 }
@@ -74,17 +119,68 @@ function supplierFragment(supplier) {
 function customerFragment(customer) {
   const party = fragment().ele("cac:AccountingCustomerParty").ele("cac:Party");
 
-  if (customer.ID) {
-    party.ele("cbc:EndpointID").txt(customer.ID).up();
+  if (customer.TradingName) {
+    party
+      .ele("cac:PartyName")
+      .ele("cbc:Name")
+      .txt(customer.TradingName)
+      .up()
+      .up();
   }
 
-  party.ele("cac:PartyName").ele("cbc:Name").txt(customer.Name).up().up();
+  party
+    .ele("cac:PartyLegalEntity")
+    .ele("cbc:RegistrationName")
+    .txt(customer.Name)
+    .up()
+    .up();
+
+  if (customer.PostalAddress) {
+    const addr = party.ele("cac:PostalAddress");
+    if (customer.PostalAddress.StreetName)
+      addr.ele("cbc:StreetName").txt(customer.PostalAddress.StreetName).up();
+    if (customer.PostalAddress.AdditionalStreetName)
+      addr
+        .ele("cbc:AdditionalStreetName")
+        .txt(customer.PostalAddress.AdditionalStreetName)
+        .up();
+    if (customer.PostalAddress.CityName)
+      addr.ele("cbc:CityName").txt(customer.PostalAddress.CityName).up();
+    if (customer.PostalAddress.PostalZone)
+      addr.ele("cbc:PostalZone").txt(customer.PostalAddress.PostalZone).up();
+    if (customer.PostalAddress.CountrySubentity)
+      addr
+        .ele("cbc:CountrySubentity")
+        .txt(customer.PostalAddress.CountrySubentity)
+        .up();
+    addr
+      .ele("cac:Country")
+      .ele("cbc:IdentificationCode")
+      .txt(customer.PostalAddress.Country)
+      .up()
+      .up();
+    addr.up();
+  }
+
+  if (customer.Contact) {
+    const contact = party.ele("cac:Contact");
+    if (customer.Contact.Name)
+      contact.ele("cbc:Name").txt(customer.Contact.Name).up();
+    if (customer.Contact.Telephone)
+      contact.ele("cbc:Telephone").txt(customer.Contact.Telephone).up();
+    if (customer.Contact.ElectronicMail)
+      contact
+        .ele("cbc:ElectronicMail")
+        .txt(customer.Contact.ElectronicMail)
+        .up();
+    contact.up();
+  }
 
   return party.up().up();
 }
 
-function legalMonetaryTotalFragment(legalMonetaryTotal) {
-  const { Currency: currency } = legalMonetaryTotal;
+function legalMonetaryTotalFragment(legalMonetaryTotal, documentCurrencyCode) {
+  const currency = documentCurrencyCode || legalMonetaryTotal.Currency;
 
   const frag = fragment()
     .ele("cac:LegalMonetaryTotal")
@@ -108,7 +204,7 @@ function legalMonetaryTotalFragment(legalMonetaryTotal) {
       .txt(legalMonetaryTotal.AllowanceTotalAmount)
       .up();
   }
-  
+
   if (legalMonetaryTotal.ChargeTotalAmount !== undefined) {
     frag
       .ele("cbc:ChargeTotalAmount")
@@ -124,7 +220,7 @@ function legalMonetaryTotalFragment(legalMonetaryTotal) {
       .txt(legalMonetaryTotal.PrepaidAmount)
       .up();
   }
-  
+
   frag
     .ele("cbc:PayableAmount")
     .att("currencyID", currency)
@@ -132,7 +228,7 @@ function legalMonetaryTotalFragment(legalMonetaryTotal) {
     .up()
     .up();
 
-    return frag;
+  return frag;
 }
 
 function toUBLXml(invoice) {
@@ -144,18 +240,28 @@ function toUBLXml(invoice) {
       "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2",
   });
 
-  // Top level fields
+  root.ele("cbc:ID").txt(invoice.InvoiceID).up();
   root.ele("cbc:ProfileID").txt(invoice.ProfileID).up();
   root.ele("cbc:IssueDate").txt(invoice.IssueDate).up();
   root.ele("cbc:DueDate").txt(invoice.DueDate).up();
 
-  // Sections
+  if (invoice.DocumentCurrencyCode) {
+    root.ele("cbc:DocumentCurrencyCode").txt(invoice.DocumentCurrencyCode).up();
+  }
+
   root.import(orderReferenceFragment(invoice.OrderReference));
   root.import(deliveryFragment(invoice.Delivery));
-  root.import(paymentMeansFragment(invoice.PaymentMeans));
+  root.import(
+    paymentMeansFragment(invoice.PaymentMeans, invoice.DocumentCurrencyCode),
+  );
   root.import(supplierFragment(invoice.Supplier));
   root.import(customerFragment(invoice.Customer));
-  root.import(legalMonetaryTotalFragment(invoice.LegalMonetaryTotal));
+  root.import(
+    legalMonetaryTotalFragment(
+      invoice.LegalMonetaryTotal,
+      invoice.DocumentCurrencyCode,
+    ),
+  );
 
   return root.doc().end({ prettyPrint: true });
 }

@@ -21,6 +21,7 @@ function validateXmlStructure(xmlDoc) {
     "//cbc:ProfileID",
     "//cbc:IssueDate",
     "//cbc:DueDate",
+    "//cbc:DocumentCurrencyCode",
     "//cac:OrderReference",
     "//cac:Delivery",
     "//cac:PaymentMeans",
@@ -101,12 +102,10 @@ function validateBusinessRules(invoiceData) {
   }
 
   // Currency consistency
-  if (
-    lmt.Currency !== invoiceData.PaymentMeans.PayeeFinancialAccount.Currency
-  ) {
+  if (lmt.Currency !== invoiceData.DocumentCurrencyCode) {
     errors.push({
       message:
-        "Currency mismatch between LegalMonetaryTotal and PayeeFinancialAccount",
+        "Currency mismatch between LegalMonetaryTotal and DocumentCurrencyCode",
     });
   }
 
