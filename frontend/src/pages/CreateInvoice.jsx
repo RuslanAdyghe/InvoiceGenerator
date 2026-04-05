@@ -1,10 +1,15 @@
 import { useState } from "react";
 import NavBar from "../components/NavBar";
+import ErrorModal from "../components/ErrorModal";
 
 export default function CreateInvoice() {
   const [invoiceXml, setInvoiceXml] = useState("");
-  const [error, setError] = useState("");
   const [extracting, setExtracting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showError, setShowError] = useState(false);
 
   const [formData, setFormData] = useState({
     ProfileID: "",
@@ -56,15 +61,70 @@ export default function CreateInvoice() {
     },
   });
 
+  const inputClass = "border border-gray-300 rounded-md p-2 w-full mb-3";
+
+  const showErrorModal = (message) => {
+    setErrorMessage(message);
+    setShowError(true);
+  };
+
+  const safeParseNumber = (value) => {
+    if (value === "" || value === null || value === undefined) return 0;
+    const parsed = parseFloat(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  };
+
+  const getErrorMessage = (data, fallback) => {
+    return data?.error || data?.message || fallback;
+  };
+
+  const validateForm = () => {
+    if (!formData.ProfileID.trim()) {
+      return "Profile ID is required";
+    }
+
+    if (!formData.IssueDate) {
+      return "Issue date is required";
+    }
+
+    if (!formData.DueDate) {
+      return "Due date is required";
+    }
+
+    if (!formData.Supplier.Name.trim()) {
+      return "Supplier name is required";
+    }
+
+    if (!formData.Customer.Name.trim()) {
+      return "Customer name is required";
+    }
+
+    if (!formData.Customer.Email.trim()) {
+      return "Customer email is required";
+    }
+
+    if (!formData.LegalMonetaryTotal.Currency.trim()) {
+      return "Currency is required";
+    }
+
+    if (formData.LegalMonetaryTotal.PayableAmount <= 0) {
+      return "Payable amount must be greater than 0";
+    }
+
+    return "";
+  };
+
   const handleChange = (path, value) => {
     setFormData((prev) => {
       const updated = { ...prev };
       const keys = path.split(".");
       let obj = updated;
+
       for (let i = 0; i < keys.length - 1; i++) {
         obj[keys[i]] = { ...obj[keys[i]] };
         obj = obj[keys[i]];
       }
+
       obj[keys[keys.length - 1]] = value;
       return updated;
     });
@@ -84,19 +144,65 @@ export default function CreateInvoice() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Failed to extract invoice data");
+        showErrorModal(getErrorMessage(data, "Failed to extract invoice data"));
         return;
       }
+
+      if (!data?.invoiceData) {
+        showErrorModal("Invalid extracted invoice data");
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        ...data.invoiceData,
+        OrderReference: {
+          ...prev.OrderReference,
+          ...data.invoiceData?.OrderReference,
+        },
+        Delivery: {
+          ...prev.Delivery,
+          ...data.invoiceData?.Delivery,
+        },
+        PaymentMeans: {
+          ...prev.PaymentMeans,
+          ...data.invoiceData?.PaymentMeans,
+          PayeeFinancialAccount: {
+            ...prev.PaymentMeans.PayeeFinancialAccount,
+            ...data.invoiceData?.PaymentMeans?.PayeeFinancialAccount,
+          },
+        },
+        Supplier: {
+          ...prev.Supplier,
+          ...data.invoiceData?.Supplier,
+        },
+        Customer: {
+          ...prev.Customer,
+          ...data.invoiceData?.Customer,
+        },
+        LegalMonetaryTotal: {
+          ...prev.LegalMonetaryTotal,
+          ...data.invoiceData?.LegalMonetaryTotal,
+        },
+      }));
+
+      setSuccessMessage("Invoice data extracted successfully");
       setFormData((prev) => deepMerge(prev, data.invoiceData));
     } catch (err) {
-      setError("Failed to extract invoice data");
+      showErrorModal(
+        err.message === "Failed to fetch"
+          ? "Cannot connect to server. Is the backend running?"
+          : "Failed to extract invoice data",
+      );
     } finally {
       setExtracting(false);
     }
   };
 
   const handleSubmit = async () => {
-    setError("");
+    setSuccessMessage("");
+    setInvoiceXml("");
+
     const userId = localStorage.getItem("userId");
     try {
       const response = await fetch("http://localhost:3000/invoices", {
@@ -106,7 +212,12 @@ export default function CreateInvoice() {
       });
       const data = await response.json();
       if (!response.ok) {
-        setError(data.error || "Something went wrong");
+        showErrorModal(getErrorMessage(data, "Failed to create invoice"));
+        return;
+      }
+
+      if (!data?.invoiceId) {
+        showErrorModal("Invoice was created but no invoice ID was returned");
         return;
       }
       const transformResponse = await fetch(
@@ -115,7 +226,9 @@ export default function CreateInvoice() {
       );
       const transformData = await transformResponse.json();
       if (!transformResponse.ok) {
-        setError(transformData.error || "Failed to transform invoice");
+        showErrorModal(
+          getErrorMessage(transformData, "Failed to transform invoice"),
+        );
         return;
       }
       await fetch(
@@ -125,8 +238,15 @@ export default function CreateInvoice() {
         },
       );
       setInvoiceXml(transformData.invoiceXml);
+      setSuccessMessage("Invoice created and emailed successfully");
     } catch (err) {
-      setError("Failed to connect to server");
+      showErrorModal(
+        err.message === "Failed to fetch"
+          ? "Cannot connect to server. Is the backend running?"
+          : err.message || "Failed to connect to server",
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -146,11 +266,17 @@ export default function CreateInvoice() {
     return output;
   };
 
-  const inputClass = "border border-gray-300 rounded-md p-2 w-full mb-3";
-
   return (
     <>
       <NavBar />
+
+      {showError && (
+        <ErrorModal
+          message={errorMessage}
+          onClose={() => setShowError(false)}
+        />
+      )}
+
       <main className="min-h-screen bg-gray-50 px-6 py-8 pt-24">
         <div className="max-w-4xl mx-auto">
           <section className="mb-8 text-center">
@@ -163,7 +289,6 @@ export default function CreateInvoice() {
             </p>
           </section>
 
-          {/* AI Extractor */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-2">
               Autofill from PDF or CSV
@@ -173,12 +298,15 @@ export default function CreateInvoice() {
               review. Rest assured your sensitive data is not stored nor used in
               the training of any AI software.
             </p>
+
             <input
               type="file"
               accept=".pdf,.csv"
               onChange={handleFileUpload}
-              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+              disabled={extracting || loading}
+              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 disabled:opacity-50"
             />
+
             {extracting && (
               <p className="text-sm text-purple-500 mt-3 animate-pulse">
                 Extracting invoice data...
@@ -187,7 +315,11 @@ export default function CreateInvoice() {
           </div>
 
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+            {successMessage && (
+              <p className="text-green-600 bg-green-50 border border-green-200 rounded-md p-3 mb-4">
+                {successMessage}
+              </p>
+            )}
 
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               General
@@ -201,14 +333,12 @@ export default function CreateInvoice() {
             <input
               className={inputClass}
               type="date"
-              placeholder="Issue Date"
               value={formData.IssueDate}
               onChange={(e) => handleChange("IssueDate", e.target.value)}
             />
             <input
               className={inputClass}
               type="date"
-              placeholder="Due Date"
               value={formData.DueDate}
               onChange={(e) => handleChange("DueDate", e.target.value)}
             />
@@ -239,7 +369,6 @@ export default function CreateInvoice() {
             <input
               className={inputClass}
               type="date"
-              placeholder="Actual Delivery Date"
               value={formData.Delivery.ActualDeliveryDate}
               onChange={(e) =>
                 handleChange("Delivery.ActualDeliveryDate", e.target.value)
@@ -268,7 +397,6 @@ export default function CreateInvoice() {
             <input
               className={inputClass}
               type="date"
-              placeholder="Payment Due Date"
               value={formData.PaymentMeans.PaymentDueDate}
               onChange={(e) =>
                 handleChange("PaymentMeans.PaymentDueDate", e.target.value)
@@ -610,9 +738,10 @@ export default function CreateInvoice() {
 
             <button
               onClick={handleSubmit}
-              className="bg-purple-600 text-white text-lg font-medium rounded-md px-4 py-3 w-full mt-4"
+              disabled={loading || extracting}
+              className="bg-purple-600 text-white text-lg font-medium rounded-md px-4 py-3 w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create Invoice
+              {loading ? "Creating Invoice..." : "Create Invoice"}
             </button>
 
             {invoiceXml && (

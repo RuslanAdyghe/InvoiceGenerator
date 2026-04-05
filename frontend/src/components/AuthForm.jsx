@@ -1,22 +1,40 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import ErrorModal from "./ErrorModal";
+
 function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showError, setShowError] = useState(false);  
 
   const handleSubmit = async () => {
 
     if (!email || !password) {
-      alert("Email and password are required");
+      setErrorMessage("Email and password are required");
+      setShowError(true);
+      return;
+    }
+
+    if (showConfirmPassword && !confirmPassword.trim()) {
+      setErrorMessage("Please confirm your password");
+      setShowError(true);
       return;
     }
 
     if (showConfirmPassword && password !== confirmPassword) {
-      alert("Passwords do not match");
+      setErrorMessage("Passwords do not match");
+      setShowError(true);
+      return;
+    }
+
+     if (showConfirmPassword && !companyName.trim()) {
+      setErrorMessage("Company name is required");
+      setShowError(true);
       return;
     }
 
@@ -35,7 +53,8 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
       const data = await response.json(); 
 
       if (!response.ok) {
-        alert(data.error || "Something went wrong");  
+        setErrorMessage(data?.error || data?.message || "Invalid email or password");
+        setShowError(true);
         return;
       }
 
@@ -96,6 +115,10 @@ function AuthForm({ heading, subheading, showConfirmPassword, buttonName }) {
       >
         {buttonName}
       </button>
+      
+      {showError && (
+        <ErrorModal message={errorMessage} onClose={() => setShowError(false)} />
+      )}
     </div>
   )
 }
