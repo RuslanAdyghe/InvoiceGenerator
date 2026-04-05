@@ -56,10 +56,6 @@ function paymentMeansFragment(paymentMeans, currency) {
 function supplierFragment(supplier) {
   const party = fragment().ele("cac:AccountingSupplierParty").ele("cac:Party");
 
-  if (supplier.EndpointID) {
-    party.ele("cbc:EndpointID").txt(supplier.EndpointID).up();
-  }
-
   if (supplier.TradingName) {
     party
       .ele("cac:PartyName")
@@ -75,15 +71,6 @@ function supplierFragment(supplier) {
     .txt(supplier.Name)
     .up()
     .up();
-
-  if (supplier.ID) {
-    party
-      .ele("cac:PartyIdentification")
-      .ele("cbc:ID")
-      .txt(supplier.ID)
-      .up()
-      .up();
-  }
 
   if (supplier.PostalAddress) {
     const addr = party.ele("cac:PostalAddress");
@@ -112,15 +99,25 @@ function supplierFragment(supplier) {
     addr.up();
   }
 
+  if (supplier.Contact) {
+    const contact = party.ele("cac:Contact");
+    if (supplier.Contact.Name)
+      contact.ele("cbc:Name").txt(supplier.Contact.Name).up();
+    if (supplier.Contact.Telephone)
+      contact.ele("cbc:Telephone").txt(supplier.Contact.Telephone).up();
+    if (supplier.Contact.ElectronicMail)
+      contact
+        .ele("cbc:ElectronicMail")
+        .txt(supplier.Contact.ElectronicMail)
+        .up();
+    contact.up();
+  }
+
   return party.up().up();
 }
 
 function customerFragment(customer) {
   const party = fragment().ele("cac:AccountingCustomerParty").ele("cac:Party");
-
-  if (customer.EndpointID) {
-    party.ele("cbc:EndpointID").txt(customer.EndpointID).up();
-  }
 
   if (customer.TradingName) {
     party
@@ -137,15 +134,6 @@ function customerFragment(customer) {
     .txt(customer.Name)
     .up()
     .up();
-
-  if (customer.ID) {
-    party
-      .ele("cac:PartyIdentification")
-      .ele("cbc:ID")
-      .txt(customer.ID)
-      .up()
-      .up();
-  }
 
   if (customer.PostalAddress) {
     const addr = party.ele("cac:PostalAddress");
@@ -174,11 +162,25 @@ function customerFragment(customer) {
     addr.up();
   }
 
+  if (customer.Contact) {
+    const contact = party.ele("cac:Contact");
+    if (customer.Contact.Name)
+      contact.ele("cbc:Name").txt(customer.Contact.Name).up();
+    if (customer.Contact.Telephone)
+      contact.ele("cbc:Telephone").txt(customer.Contact.Telephone).up();
+    if (customer.Contact.ElectronicMail)
+      contact
+        .ele("cbc:ElectronicMail")
+        .txt(customer.Contact.ElectronicMail)
+        .up();
+    contact.up();
+  }
+
   return party.up().up();
 }
 
-function legalMonetaryTotalFragment(legalMonetaryTotal) {
-  const { Currency: currency } = legalMonetaryTotal;
+function legalMonetaryTotalFragment(legalMonetaryTotal, documentCurrencyCode) {
+  const currency = documentCurrencyCode || legalMonetaryTotal.Currency;
 
   const frag = fragment()
     .ele("cac:LegalMonetaryTotal")
@@ -238,13 +240,15 @@ function toUBLXml(invoice) {
       "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2",
   });
 
-  // Top level fields
   root.ele("cbc:ID").txt(invoice.InvoiceID).up();
   root.ele("cbc:ProfileID").txt(invoice.ProfileID).up();
   root.ele("cbc:IssueDate").txt(invoice.IssueDate).up();
   root.ele("cbc:DueDate").txt(invoice.DueDate).up();
 
-  // Sections
+  if (invoice.DocumentCurrencyCode) {
+    root.ele("cbc:DocumentCurrencyCode").txt(invoice.DocumentCurrencyCode).up();
+  }
+
   root.import(orderReferenceFragment(invoice.OrderReference));
   root.import(deliveryFragment(invoice.Delivery));
   root.import(
@@ -252,7 +256,12 @@ function toUBLXml(invoice) {
   );
   root.import(supplierFragment(invoice.Supplier));
   root.import(customerFragment(invoice.Customer));
-  root.import(legalMonetaryTotalFragment(invoice.LegalMonetaryTotal));
+  root.import(
+    legalMonetaryTotalFragment(
+      invoice.LegalMonetaryTotal,
+      invoice.DocumentCurrencyCode,
+    ),
+  );
 
   return root.doc().end({ prettyPrint: true });
 }

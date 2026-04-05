@@ -4,10 +4,10 @@ import { createUser } from "../src/auth.js";
 
 function validInvoice() {
   return {
-    ProfileID: "Profile 1",
+    ProfileID: "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
     IssueDate: "2024-01-15",
     DueDate: "2024-02-15",
-    DocumentCurrencyCode: "EUR",
+    DocumentCurrencyCode: "AUD",
 
     OrderReference: {
       ID: "ORD-001",
@@ -22,37 +22,55 @@ function validInvoice() {
       PaymentMeansCode: "30",
       PaymentDueDate: "2024-02-15",
       PayeeFinancialAccount: {
-        ID: "GB29NWBK60161331926819",
+        ID: "062-001-12345678",
         Name: "Stash Corp",
       },
     },
 
     Supplier: {
       Name: "Stash Corp",
-      ID: "SUP-001",
+      TradingName: "Stash",
       PostalAddress: {
+        StreetName: "123 George Street",
+        CityName: "Sydney",
+        PostalZone: "2000",
+        CountrySubentity: "NSW",
         Country: "AU",
+      },
+      Contact: {
+        Name: "Jane Smith",
+        Telephone: "+61 2 9000 0000",
+        ElectronicMail: "jane@stashcorp.com.au",
       },
     },
 
     Customer: {
       Name: "Client Ltd",
-      ID: "CUST-001",
-      Email: "umum2169@gmail.com",
+      TradingName: "Client",
+      Email: "umum2169@gmail.com", // ← add this
       PostalAddress: {
+        StreetName: "456 Collins Street",
+        CityName: "Melbourne",
+        PostalZone: "3000",
+        CountrySubentity: "VIC",
         Country: "AU",
+      },
+      Contact: {
+        Name: "John Doe",
+        Telephone: "+61 3 9000 0000",
+        ElectronicMail: "john@clientltd.com.au",
       },
     },
 
     LegalMonetaryTotal: {
-      Currency: "EUR",
-      LineExtensionAmount: 1436.5,
-      TaxExclusiveAmount: 1436.5,
-      TaxInclusiveAmount: 1729,
-      AllowanceTotalAmount: 100,
-      ChargeTotalAmount: 100,
-      PrepaidAmount: 1000,
-      PayableAmount: 729,
+      Currency: "AUD",
+      LineExtensionAmount: 1000,
+      TaxExclusiveAmount: 1000,
+      TaxInclusiveAmount: 1100,
+      AllowanceTotalAmount: 0,
+      ChargeTotalAmount: 0,
+      PrepaidAmount: 0,
+      PayableAmount: 1100,
     },
   };
 }
@@ -104,6 +122,7 @@ describe("Send Invoice Email Tests", () => {
         Name: "Client Ltd",
         ID: "CUST-001",
         Email: "umum2169@gmail.com",
+        PostalAddress: { Country: "AU" },
       },
     });
     await transformInvoice(invoiceWithCustomerEmail.invoiceId);

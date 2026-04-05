@@ -21,6 +21,7 @@ function validateXmlStructure(xmlDoc) {
     "//cbc:ProfileID",
     "//cbc:IssueDate",
     "//cbc:DueDate",
+    "//cbc:DocumentCurrencyCode",
     "//cac:OrderReference",
     "//cac:Delivery",
     "//cac:PaymentMeans",
