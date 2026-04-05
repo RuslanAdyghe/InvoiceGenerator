@@ -87,7 +87,7 @@ export default function CreateInvoice() {
         setError(data.error || "Failed to extract invoice data");
         return;
       }
-      setFormData((prev) => ({ ...prev, ...data.invoiceData }));
+      setFormData((prev) => deepMerge(prev, data.invoiceData));
     } catch (err) {
       setError("Failed to extract invoice data");
     } finally {
@@ -128,6 +128,22 @@ export default function CreateInvoice() {
     } catch (err) {
       setError("Failed to connect to server");
     }
+  };
+
+  const deepMerge = (target, source) => {
+    const output = { ...target };
+    for (const key in source) {
+      if (
+        source[key] &&
+        typeof source[key] === "object" &&
+        !Array.isArray(source[key])
+      ) {
+        output[key] = deepMerge(target[key] || {}, source[key]);
+      } else {
+        output[key] = source[key] ?? "";
+      }
+    }
+    return output;
   };
 
   const inputClass = "border border-gray-300 rounded-md p-2 w-full mb-3";
