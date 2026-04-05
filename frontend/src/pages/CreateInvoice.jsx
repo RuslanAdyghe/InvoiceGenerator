@@ -113,6 +113,21 @@ export default function CreateInvoice() {
 
     return "";
   };
+  const deepMerge = (target, source) => {
+    const output = { ...target };
+    for (const key in source) {
+      if (
+        source[key] &&
+        typeof source[key] === "object" &&
+        !Array.isArray(source[key])
+      ) {
+        output[key] = deepMerge(target[key] || {}, source[key]);
+      } else {
+        output[key] = source[key] ?? "";
+      }
+    }
+    return output;
+  };
 
   const handleChange = (path, value) => {
     setFormData((prev) => {
@@ -134,7 +149,6 @@ export default function CreateInvoice() {
     const file = e.target.files[0];
     if (!file) return;
     setExtracting(true);
-    setError("");
     try {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
@@ -187,7 +201,6 @@ export default function CreateInvoice() {
       }));
 
       setSuccessMessage("Invoice data extracted successfully");
-      setFormData((prev) => deepMerge(prev, data.invoiceData));
     } catch (err) {
       showErrorModal(
         err.message === "Failed to fetch"
@@ -250,21 +263,7 @@ export default function CreateInvoice() {
     }
   };
 
-  const deepMerge = (target, source) => {
-    const output = { ...target };
-    for (const key in source) {
-      if (
-        source[key] &&
-        typeof source[key] === "object" &&
-        !Array.isArray(source[key])
-      ) {
-        output[key] = deepMerge(target[key] || {}, source[key]);
-      } else {
-        output[key] = source[key] ?? "";
-      }
-    }
-    return output;
-  };
+
 
   return (
     <>
