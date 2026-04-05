@@ -152,7 +152,7 @@ export default function CreateInvoice() {
     try {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
-      const res = await fetch("http://localhost:3000/invoices/extract", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/invoices/extract`, {
         method: "POST",
         body: formDataUpload,
       });
@@ -223,7 +223,7 @@ export default function CreateInvoice() {
     }
     const userId = localStorage.getItem("userId");
     try {
-      const response = await fetch("http://localhost:3000/invoices", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/invoices`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, invoiceData: formData }),
@@ -239,7 +239,7 @@ export default function CreateInvoice() {
         return;
       }
       const transformResponse = await fetch(
-        `http://localhost:3000/invoices/${data.invoiceId}/transform`,
+        `${import.meta.env.VITE_API_URL}/invoices/${data.invoiceId}/transform`,
         { method: "POST" },
       );
       const transformData = await transformResponse.json();
@@ -250,7 +250,7 @@ export default function CreateInvoice() {
         return;
       }
       await fetch(
-        `http://localhost:3000/invoices/${data.invoiceId}/send-email`,
+        `${import.meta.env.VITE_API_URL}/invoices/${data.invoiceId}/send-email`,
         {
           method: "POST",
         },
