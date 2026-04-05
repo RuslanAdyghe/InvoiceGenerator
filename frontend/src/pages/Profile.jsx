@@ -21,7 +21,7 @@ function Profile() {
       const userId = localStorage.getItem("userId");
 
       const response = await fetch(
-        `http://localhost:3000/auth/user/${userId}`,
+        `${import.meta.env.VITE_API_URL}/auth/user/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
@@ -36,7 +36,7 @@ function Profile() {
       const token = localStorage.getItem("token");
       
       const response = await fetch(
-        `http://localhost:3000/invoices/user/${userId}`,
+        `${import.meta.env.VITE_API_URL}/invoices/user/${userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         },
