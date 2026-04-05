@@ -216,6 +216,7 @@ export default function CreateInvoice() {
     setSuccessMessage("");
     setInvoiceXml("");
 
+    const validationError = validateForm();
     const userId = localStorage.getItem("userId");
     try {
       const response = await fetch("http://localhost:3000/invoices", {
