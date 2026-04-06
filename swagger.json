@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Invoice Generator API",
-    "version": "1.0.0",
-    "description": "API for generating UBL XML invoices from structured input data"
+    "version": "2.0.0",
+    "description": "API for generating UBL XML invoices from structured input data. V2 routes include enhanced invoice data with PostalAddress, Contact, and DocumentCurrencyCode fields."
   },
   "servers": [
     {
@@ -17,12 +17,20 @@
   ],
   "tags": [
     {
-      "name": "Auth",
+      "name": "Authentication",
       "description": "User authentication and registration"
     },
     {
-      "name": "Invoices",
-      "description": "Invoice creation, retrieval, transformation and validation"
+      "name": "Invoices V1",
+      "description": "Original MVP invoice routes - maintained for backwards compatibility"
+    },
+    {
+      "name": "Invoice Features",
+      "description": "Additional invoice features - status management, download, email, and AI extraction"
+    },
+    {
+      "name": "Invoices V2",
+      "description": "Updated invoice routes with enhanced data structure including PostalAddress, Contact, and DocumentCurrencyCode"
     }
   ],
   "security": [
@@ -33,7 +41,7 @@
   "paths": {
     "/auth/signup": {
       "post": {
-        "tags": ["Auth"],
+        "tags": ["Authentication"],
         "security": [],
         "summary": "Sign up",
         "description": "Creates a new user account and returns a JWT token.",
@@ -41,9 +49,7 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SignupRequest"
-              },
+              "schema": { "$ref": "#/components/schemas/SignupRequest" },
               "example": {
                 "email": "aaron@stashcorp.com",
                 "password": "password123",
@@ -57,24 +63,20 @@
             "description": "User successfully created",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
               }
             }
           },
           "400": {
             "description": "Email already in use or missing required fields"
           },
-          "500": {
-            "description": "Internal server error"
-          }
+          "500": { "description": "Internal server error" }
         }
       }
     },
     "/auth/login": {
       "post": {
-        "tags": ["Auth"],
+        "tags": ["Authentication"],
         "security": [],
         "summary": "Login",
         "description": "Logs in an existing user and returns a JWT token.",
@@ -82,9 +84,7 @@
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginRequest"
-              },
+              "schema": { "$ref": "#/components/schemas/LoginRequest" },
               "example": {
                 "email": "aaron@stashcorp.com",
                 "password": "password123"
@@ -97,36 +97,27 @@
             "description": "Login successful",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/AuthResponse" }
               }
             }
           },
-          "401": {
-            "description": "Invalid email or password"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
+          "401": { "description": "Invalid email or password" },
+          "500": { "description": "Internal server error" }
         }
       }
     },
     "/auth/user/{userId}": {
       "get": {
-        "tags": ["Auth"],
+        "tags": ["Authentication"],
         "summary": "Get user",
-        "description": "Retrieves a user's information by their unique ID. Password is never returned.",
+        "description": "Retrieves a user's information by their unique ID.",
         "parameters": [
           {
             "name": "userId",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
-            "description": "Unique identifier for the user"
+            "schema": { "type": "string" },
+            "example": "18eebbc2-8162-4bdd-b272-dd47dc81e7a8"
           }
         ],
         "responses": {
@@ -134,32 +125,26 @@
             "description": "User retrieved successfully",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/UserResponse" }
               }
             }
           },
-          "404": {
-            "description": "User not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
+          "404": { "description": "User not found" },
+          "500": { "description": "Internal server error" }
         }
       }
     },
     "/invoices": {
       "post": {
-        "tags": ["Invoices"],
-        "summary": "Create Invoice",
-        "description": "Creates a new structured invoice from input data, Stores metadata to DynamoDb",
+        "tags": ["Invoices V1"],
+        "summary": "Create Invoice (V1)",
+        "description": "Creates a new invoice using the original data structure. Maintained for backwards compatibility.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateInvoiceRequest"
+                "$ref": "#/components/schemas/CreateInvoiceRequestV1"
               },
               "example": {
                 "userId": "18eebbc2-8162-4bdd-b272-dd47dc81e7a8",
@@ -167,9 +152,7 @@
                   "ProfileID": "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
                   "IssueDate": "2024-01-15",
                   "DueDate": "2024-02-15",
-                  "OrderReference": {
-                    "ID": "ORD-001"
-                  },
+                  "OrderReference": { "ID": "ORD-001" },
                   "Delivery": {
                     "ActualDeliveryDate": "2024-01-14",
                     "ActualDeliveryTime": "14:30:00"
@@ -183,14 +166,8 @@
                       "Currency": "AUD"
                     }
                   },
-                  "Supplier": {
-                    "Name": "Stash Corp",
-                    "ID": "SUP-001"
-                  },
-                  "Customer": {
-                    "Name": "Client Ltd",
-                    "ID": "CUST-001"
-                  },
+                  "Supplier": { "Name": "Stash Corp", "ID": "SUP-001" },
+                  "Customer": { "Name": "Client Ltd", "ID": "CUST-001" },
                   "LegalMonetaryTotal": {
                     "Currency": "AUD",
                     "LineExtensionAmount": 1436.5,
@@ -217,187 +194,23 @@
               }
             }
           },
-          "400": {
-            "description": "Missing required fields"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
+          "400": { "description": "Missing required fields" },
+          "500": { "description": "Internal server error" }
         }
       }
     },
-    "/invoices/{invoiceId}/transform": {
-      "post": {
-        "tags": ["Invoices"],
-        "summary": "Transform invoice",
-        "description": "Transforms a previously created structured invoice into a UBL XML invoice document, Stores Result to Amazon S3",
-        "parameters": [
-          {
-            "name": "invoiceId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac",
-            "description": "Unique identifier for the invoice"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Invoice successfully transformed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TransformInvoiceResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "InvoiceId does not exist"
-          },
-          "500": {
-            "description": "Unexpected system failure"
-          }
-        }
-      }
-    },
-    "/invoices/{invoiceId}/validate": {
-      "post": {
-        "tags": ["Invoices"],
-        "summary": "Validate invoice",
-        "description": "Validates the generated UBL invoice document against the required UBL validation rules and schema to check if it is compliant.",
-        "parameters": [
-          {
-            "name": "invoiceId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac",
-            "description": "Unique identifier for the invoice"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Invoice validation result",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidateInvoiceResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invoice has not been transformed yet"
-          },
-          "404": {
-            "description": "InvoiceId does not exist"
-          },
-          "500": {
-            "description": "Unexpected system failure"
-          }
-        }
-      }
-    },
-    "/invoices/{invoiceId}/download": {
+    "/invoices/{invoiceId}": {
       "get": {
-        "tags": ["Invoices"],
-        "summary": "Download invoice XML.",
-        "description": "Downloads the transformed UBL XML invoice document as a file, only works if the Invoice has been transformed into UBL XML",
+        "tags": ["Invoices V1"],
+        "summary": "Retrieve invoice",
+        "description": "Retrieves a previously created invoice by its unique ID.",
         "parameters": [
           {
             "name": "invoiceId",
             "in": "path",
             "required": true,
             "schema": { "type": "string" },
-            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac",
-            "description": "Unique identifier for the invoice"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "UBL XML invoice document",
-            "content": {
-              "application/xml": {
-                "schema": {
-                  "type": "object",
-                  "xml": {
-                    "name": "Invoice",
-                    "namespace": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
-                  }
-                },
-                "example": "<Invoice xmlns=\"urn:oasis:names:specification:ubl:schema:xsd:Invoice-2\" xmlns:cac=\"urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2\" xmlns:cbc=\"urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2\">\n  <cbc:ProfileID>Profile 1</cbc:ProfileID>\n  <cbc:IssueDate>2024-01-15</cbc:IssueDate>\n  <cbc:DueDate>2024-02-15</cbc:DueDate>\n  <cac:LegalMonetaryTotal>\n    <cbc:PayableAmount currencyID=\"AUD\">729</cbc:PayableAmount>\n  </cac:LegalMonetaryTotal>\n</Invoice>"
-              }
-            }
-          },
-          "404": {
-            "description": "Invoice not found or not yet transformed"
-          },
-          "500": {
-            "description": "Unexpected system failure"
-          }
-        }
-      }
-    },
-    "/invoices/{invoiceId}/send-email": {
-      "post": {
-        "tags": ["Invoices"],
-        "summary": "Send invoice email",
-        "description": "Sends the specified invoice as a UBL XML attachment to the customer's registered email address. Check spam folder. Email is located via UserId, make sure you use invoice generated from userID with your email to get it",
-        "parameters": [
-          {
-            "name": "invoiceId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac",
-            "description": "Unique identifier for the invoice"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Email sent successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SendEmailResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Missing or invalid invoice ID"
-          },
-          "404": {
-            "description": "Invoice or user not found"
-          },
-          "500": {
-            "description": "Failed to send email"
-          }
-        }
-      }
-    },
-    "/invoices/{invoiceId}": {
-      "get": {
-        "tags": ["Invoices"],
-        "summary": "Retrieve invoice",
-        "description": "Retrieves a previously created invoice by its unique ID, returning all stored invoice data.",
-        "parameters": [
-          {
-            "name": "invoiceId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac",
-            "description": "Unique identifier for the invoice"
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
           }
         ],
         "responses": {
@@ -405,22 +218,16 @@
             "description": "Invoice retrieved",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InvoiceResponse"
-                }
+                "schema": { "$ref": "#/components/schemas/InvoiceResponse" }
               }
             }
           },
-          "404": {
-            "description": "Invoice not found"
-          },
-          "500": {
-            "description": "System failure"
-          }
+          "404": { "description": "Invoice not found" },
+          "500": { "description": "System failure" }
         }
       },
       "delete": {
-        "tags": ["Invoices"],
+        "tags": ["Invoices V1"],
         "summary": "Delete invoice",
         "description": "Deletes an invoice and its associated XML file from S3.",
         "parameters": [
@@ -428,11 +235,8 @@
             "name": "invoiceId",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac",
-            "description": "Unique identifier for the invoice"
+            "schema": { "type": "string" },
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
           }
         ],
         "responses": {
@@ -447,21 +251,329 @@
                       "type": "string",
                       "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
                     },
-                    "status": {
-                      "type": "string",
-                      "example": "deleted"
-                    }
+                    "status": { "type": "string", "example": "deleted" }
                   }
                 }
               }
             }
           },
-          "404": {
-            "description": "Invoice not found"
-          },
-          "500": {
-            "description": "Internal server error"
+          "404": { "description": "Invoice not found" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/invoices/user/{userId}": {
+      "get": {
+        "tags": ["Invoices V1"],
+        "summary": "Get invoices by user",
+        "description": "Retrieves all invoices for a given user ID.",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "18eebbc2-8162-4bdd-b272-dd47dc81e7a8"
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of invoices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/InvoiceResponse" }
+                }
+              }
+            }
+          },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/invoices/{invoiceId}/transform": {
+      "post": {
+        "tags": ["Invoices V1"],
+        "summary": "Transform Invoice (V1)",
+        "description": "Transforms invoice into UBL XML using original structure. Maintained for backwards compatibility. Use POST /v2/invoices/{invoiceId}/transform for updated XML output.",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice successfully transformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransformInvoiceResponse"
+                }
+              }
+            }
+          },
+          "404": { "description": "Invoice not found" },
+          "500": { "description": "Unexpected system failure" }
+        }
+      }
+    },
+    "/invoices/{invoiceId}/validate": {
+      "post": {
+        "tags": ["Invoices V1"],
+        "summary": "Validate Invoice (V1)",
+        "description": "Validates invoice against original rules including currency consistency between LegalMonetaryTotal and PayeeFinancialAccount. Maintained for backwards compatibility.",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateInvoiceResponse"
+                }
+              }
+            }
+          },
+          "400": { "description": "Invoice not yet transformed" },
+          "404": { "description": "Invoice not found" },
+          "500": { "description": "Unexpected system failure" }
+        }
+      }
+    },
+    "/invoices/{invoiceId}/status": {
+      "put": {
+        "tags": ["Invoice Features"],
+        "summary": "Update invoice status",
+        "description": "Updates the status of an invoice. Valid transitions: created → transformed → sent → paid/overdue → cancelled.",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["status"],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "transformed",
+                      "sent",
+                      "paid",
+                      "overdue",
+                      "cancelled"
+                    ],
+                    "example": "paid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "invoiceId": {
+                      "type": "string",
+                      "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
+                    },
+                    "status": { "type": "string", "example": "paid" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid status transition" },
+          "404": { "description": "Invoice not found" },
+          "500": { "description": "Internal server error" }
+        }
+      }
+    },
+    "/invoices/{invoiceId}/download": {
+      "get": {
+        "tags": ["Invoice Features"],
+        "summary": "Download invoice XML",
+        "description": "Downloads the transformed UBL XML invoice document as a file.",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "UBL XML invoice document",
+            "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "object",
+                  "xml": {
+                    "name": "Invoice",
+                    "namespace": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Invoice not found or not yet transformed" },
+          "500": { "description": "Unexpected system failure" }
+        }
+      }
+    },
+    "/invoices/{invoiceId}/send-email": {
+      "post": {
+        "tags": ["Invoice Features"],
+        "summary": "Send invoice email",
+        "description": "Sends the invoice as a UBL XML attachment to the customer's email address.",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Email sent successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SendEmailResponse" }
+              }
+            }
+          },
+          "400": { "description": "Missing or invalid invoice ID" },
+          "404": { "description": "Invoice or user not found" },
+          "500": { "description": "Failed to send email" }
+        }
+      }
+    },
+    "/invoices/extract": {
+      "post": {
+        "tags": ["Invoice Features"],
+        "summary": "Extract invoice from file",
+        "description": "Uploads a PDF or CSV file and extracts invoice data using AI.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Invoice data extracted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "invoiceData": { "type": "object" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "No file uploaded or unsupported file type" },
+          "500": { "description": "Extraction failed" }
+        }
+      }
+    },
+    "/v2/invoices/{invoiceId}/transform": {
+      "post": {
+        "tags": ["Invoices V2"],
+        "summary": "Transform Invoice (V2)",
+        "description": "Transforms invoice into UBL XML using enhanced structure with PostalAddress, Contact, and DocumentCurrencyCode.",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice successfully transformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransformInvoiceResponse"
+                }
+              }
+            }
+          },
+          "404": { "description": "Invoice not found" },
+          "500": { "description": "Unexpected system failure" }
+        }
+      }
+    },
+    "/v2/invoices/{invoiceId}/validate": {
+      "post": {
+        "tags": ["Invoices V2"],
+        "summary": "Validate Invoice (V2)",
+        "description": "Validates invoice against updated rules including DocumentCurrencyCode consistency check and PostalAddress requirements.",
+        "parameters": [
+          {
+            "name": "invoiceId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateInvoiceResponse"
+                }
+              }
+            }
+          },
+          "400": { "description": "Invoice not yet transformed" },
+          "404": { "description": "Invoice not found" },
+          "500": { "description": "Unexpected system failure" }
         }
       }
     }
@@ -484,14 +596,8 @@
             "format": "email",
             "example": "aaron@stashcorp.com"
           },
-          "password": {
-            "type": "string",
-            "example": "password123"
-          },
-          "companyName": {
-            "type": "string",
-            "example": "Stash Corp"
-          }
+          "password": { "type": "string", "example": "password123" },
+          "companyName": { "type": "string", "example": "Stash Corp" }
         }
       },
       "LoginRequest": {
@@ -503,10 +609,7 @@
             "format": "email",
             "example": "aaron@stashcorp.com"
           },
-          "password": {
-            "type": "string",
-            "example": "password123"
-          }
+          "password": { "type": "string", "example": "password123" }
         }
       },
       "AuthResponse": {
@@ -520,10 +623,7 @@
             "type": "string",
             "example": "18eebbc2-8162-4bdd-b272-dd47dc81e7a8"
           },
-          "email": {
-            "type": "string",
-            "example": "aaron@stashcorp.com"
-          }
+          "email": { "type": "string", "example": "aaron@stashcorp.com" }
         }
       },
       "UserResponse": {
@@ -533,14 +633,8 @@
             "type": "string",
             "example": "18eebbc2-8162-4bdd-b272-dd47dc81e7a8"
           },
-          "email": {
-            "type": "string",
-            "example": "aaron@stashcorp.com"
-          },
-          "companyName": {
-            "type": "string",
-            "example": "Stash Corp"
-          },
+          "email": { "type": "string", "example": "aaron@stashcorp.com" },
+          "companyName": { "type": "string", "example": "Stash Corp" },
           "created_at": {
             "type": "string",
             "format": "date-time",
@@ -548,7 +642,7 @@
           }
         }
       },
-      "CreateInvoiceRequest": {
+      "CreateInvoiceRequestV1": {
         "type": "object",
         "required": ["userId", "invoiceData"],
         "properties": {
@@ -586,10 +680,7 @@
                 "type": "object",
                 "required": ["ID"],
                 "properties": {
-                  "ID": {
-                    "type": "string",
-                    "example": "ORD-001"
-                  }
+                  "ID": { "type": "string", "example": "ORD-001" }
                 }
               },
               "Delivery": {
@@ -608,16 +699,8 @@
               },
               "PaymentMeans": {
                 "type": "object",
-                "required": [
-                  "PaymentMeansCode",
-                  "PaymentDueDate",
-                  "PayeeFinancialAccount"
-                ],
                 "properties": {
-                  "PaymentMeansCode": {
-                    "type": "string",
-                    "example": "30"
-                  },
+                  "PaymentMeansCode": { "type": "string", "example": "30" },
                   "PaymentDueDate": {
                     "type": "string",
                     "format": "date",
@@ -631,44 +714,26 @@
                         "type": "string",
                         "example": "GB29NWBK60161331926819"
                       },
-                      "Name": {
-                        "type": "string",
-                        "example": "Stash Corp"
-                      },
-                      "Currency": {
-                        "type": "string",
-                        "example": "AUD"
-                      }
+                      "Name": { "type": "string", "example": "Stash Corp" },
+                      "Currency": { "type": "string", "example": "AUD" }
                     }
                   }
                 }
               },
               "Supplier": {
                 "type": "object",
-                "required": ["Name", "ID"],
+                "required": ["Name"],
                 "properties": {
-                  "Name": {
-                    "type": "string",
-                    "example": "Stash Corp"
-                  },
-                  "ID": {
-                    "type": "string",
-                    "example": "SUP-001"
-                  }
+                  "Name": { "type": "string", "example": "Stash Corp" },
+                  "ID": { "type": "string", "example": "SUP-001" }
                 }
               },
               "Customer": {
                 "type": "object",
-                "required": ["Name", "ID"],
+                "required": ["Name"],
                 "properties": {
-                  "Name": {
-                    "type": "string",
-                    "example": "Client Ltd"
-                  },
-                  "ID": {
-                    "type": "string",
-                    "example": "CUST-001"
-                  },
+                  "Name": { "type": "string", "example": "Client Ltd" },
+                  "ID": { "type": "string", "example": "CUST-001" },
                   "Email": {
                     "type": "string",
                     "format": "email",
@@ -683,44 +748,20 @@
                   "LineExtensionAmount",
                   "TaxExclusiveAmount",
                   "TaxInclusiveAmount",
-                  "AllowanceTotalAmount",
-                  "ChargeTotalAmount",
-                  "PrepaidAmount",
                   "PayableAmount"
                 ],
                 "properties": {
-                  "Currency": {
-                    "type": "string",
-                    "example": "AUD"
-                  },
+                  "Currency": { "type": "string", "example": "AUD" },
                   "LineExtensionAmount": {
                     "type": "number",
                     "example": 1436.5
                   },
-                  "TaxExclusiveAmount": {
-                    "type": "number",
-                    "example": 1436.5
-                  },
-                  "TaxInclusiveAmount": {
-                    "type": "number",
-                    "example": 1729
-                  },
-                  "AllowanceTotalAmount": {
-                    "type": "number",
-                    "example": 100
-                  },
-                  "ChargeTotalAmount": {
-                    "type": "number",
-                    "example": 100
-                  },
-                  "PrepaidAmount": {
-                    "type": "number",
-                    "example": 1000
-                  },
-                  "PayableAmount": {
-                    "type": "number",
-                    "example": 729
-                  }
+                  "TaxExclusiveAmount": { "type": "number", "example": 1436.5 },
+                  "TaxInclusiveAmount": { "type": "number", "example": 1729 },
+                  "AllowanceTotalAmount": { "type": "number", "example": 100 },
+                  "ChargeTotalAmount": { "type": "number", "example": 100 },
+                  "PrepaidAmount": { "type": "number", "example": 1000 },
+                  "PayableAmount": { "type": "number", "example": 729 }
                 }
               }
             }
@@ -734,10 +775,7 @@
             "type": "string",
             "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
           },
-          "status": {
-            "type": "string",
-            "example": "created"
-          }
+          "status": { "type": "string", "example": "created" }
         }
       },
       "InvoiceResponse": {
@@ -751,29 +789,13 @@
             "type": "string",
             "example": "18eebbc2-8162-4bdd-b272-dd47dc81e7a8"
           },
-          "status": {
-            "type": "string",
-            "example": "created"
-          },
+          "status": { "type": "string", "example": "created" },
           "created_at": {
             "type": "string",
             "format": "date-time",
             "example": "2024-01-15T10:00:00.000Z"
           },
-          "invoice_data": {
-            "type": "object"
-          }
-        }
-      },
-      "InvoiceList": {
-        "type": "object",
-        "properties": {
-          "invoices": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/InvoiceResponse"
-            }
-          }
+          "invoice_data": { "type": "object" }
         }
       },
       "ValidateInvoiceResponse": {
@@ -783,21 +805,15 @@
             "type": "string",
             "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
           },
-          "valid": {
-            "type": "boolean",
-            "example": true
-          },
+          "valid": { "type": "boolean", "example": true },
           "errors": {
             "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            }
+            "items": { "$ref": "#/components/schemas/ValidationError" }
           }
         }
       },
       "ValidationError": {
         "type": "object",
-        "required": ["message"],
         "properties": {
           "message": {
             "type": "string",
@@ -812,10 +828,7 @@
             "type": "string",
             "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
           },
-          "status": {
-            "type": "string",
-            "example": "transformed"
-          },
+          "status": { "type": "string", "example": "transformed" },
           "invoiceXml": {
             "type": "string",
             "example": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Invoice>...</Invoice>"
@@ -825,19 +838,13 @@
       "SendEmailResponse": {
         "type": "object",
         "properties": {
-          "success": {
-            "type": "boolean",
-            "example": true
-          },
+          "success": { "type": "boolean", "example": true },
           "to": {
             "type": "string",
             "format": "email",
             "example": "customer@example.com"
           },
-          "messageId": {
-            "type": "string",
-            "example": "<abc123@gmail.com>"
-          },
+          "messageId": { "type": "string", "example": "<abc123@gmail.com>" },
           "invoiceId": {
             "type": "string",
             "example": "97c02b73-3b44-42a2-97b7-c9427d150fac"
