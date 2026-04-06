@@ -151,10 +151,13 @@ export default function CreateInvoice() {
     try {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/invoices/extract`, {
-        method: "POST",
-        body: formDataUpload,
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/invoices/extract`,
+        {
+          method: "POST",
+          body: formDataUpload,
+        },
+      );
       const data = await res.json();
       if (!res.ok) {
         showErrorModal(getErrorMessage(data, "Failed to extract invoice data"));
@@ -238,7 +241,7 @@ export default function CreateInvoice() {
         return;
       }
       const transformResponse = await fetch(
-        `${import.meta.env.VITE_API_URL}/invoices/${data.invoiceId}/transform`,
+        `${import.meta.env.VITE_API_URL}/v2/invoices/${data.invoiceId}/transform`,
         { method: "POST" },
       );
       const transformData = await transformResponse.json();
@@ -266,8 +269,6 @@ export default function CreateInvoice() {
       setLoading(false);
     }
   };
-
-
 
   return (
     <>

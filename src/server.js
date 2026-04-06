@@ -5,6 +5,11 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import cors from "cors";
+import {
+  validateInvoiceV1,
+  toUBLXmlV1,
+  transformInvoiceV1,
+} from "./v1Functions.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -143,7 +148,7 @@ app.delete("/invoices/:id", async (req, res, next) => {
   }
 });
 
-app.post("/invoices/:invoiceId/validate", async (req, res, next) => {
+app.post("/v2/invoices/:invoiceId/validate", async (req, res, next) => {
   try {
     const { invoiceId } = req.params;
     const result = await validateInvoice(invoiceId);
@@ -153,10 +158,29 @@ app.post("/invoices/:invoiceId/validate", async (req, res, next) => {
   }
 });
 
-app.post("/invoices/:invoiceId/transform", async (req, res, next) => {
+app.post("/v2/invoices/:invoiceId/transform", async (req, res, next) => {
   const { invoiceId } = req.params;
   try {
     res.json(await transformInvoice(invoiceId));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/invoices/:invoiceId/validate", async (req, res, next) => {
+  try {
+    const { invoiceId } = req.params;
+    const result = await validateInvoiceV1(invoiceId);
+    return res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/invoices/:invoiceId/transform", async (req, res, next) => {
+  const { invoiceId } = req.params;
+  try {
+    res.json(await transformInvoiceV1(invoiceId));
   } catch (error) {
     next(error);
   }
