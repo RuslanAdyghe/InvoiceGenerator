@@ -31,13 +31,13 @@ function ViewInvoices() {
   return (
     <>
       <NavBar />
-      <main className="min-h-screen bg-gray-50 px-6 py-8 pt-24">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 px-6 py-8 pt-24 transition-colors duration-300">
         <div className="max-w-4xl mx-auto">
           <section className="header text-center">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
               Your Invoices
             </h1>
-            <p className="text-gray-500 text-sm mb-6">
+            <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
               Here you can view and manage all your invoices.
             </p>
           </section>

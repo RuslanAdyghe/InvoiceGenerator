@@ -2,11 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DeleteModal from "./DeleteModal";
 import { statusColor } from "../utils/statusColour";
-function InvoiceTable({
-  recentInvoices,
-  viewInvoice = false,
-  onDelete = null,
-}) {
+
+function InvoiceTable({ recentInvoices, viewInvoice = false, onDelete = null }) {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
@@ -21,14 +18,11 @@ function InvoiceTable({
           headers: { Authorization: `Bearer ${token}` },
         },
       );
-
       const data = await response.json();
-
       if (!response.ok) {
         alert(data.error || "Failed to delete invoice");
         return;
       }
-
       onDelete(invoiceId);
     } catch (error) {
       alert(error.message || "Failed to connect to server");
@@ -39,7 +33,7 @@ function InvoiceTable({
     <>
       <table className="w-full text-sm md:text-base">
         <thead>
-          <tr className="bg-gray-100 text-gray-500">
+          <tr className="bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 transition-colors duration-300">
             <th className="text-left p-3 md:p-4 rounded-l-lg">ID</th>
             <th className="text-left p-3 md:p-4">Status</th>
             <th className="text-left p-3 md:p-4 rounded-r-lg">Action</th>
@@ -47,8 +41,11 @@ function InvoiceTable({
         </thead>
         <tbody>
           {recentInvoices.map((invoice) => (
-            <tr key={invoice.ID} className="border-b border-gray-100">
-              <td className="p-3 md:p-4 text-gray-600">
+            <tr
+              key={invoice.ID}
+              className="border-b border-gray-100 dark:border-gray-700 transition-colors duration-300"
+            >
+              <td className="p-3 md:p-4 text-gray-600 dark:text-gray-400">
                 {invoice.ID.slice(0, 8)}...
               </td>
               <td className="p-3 md:p-4">
@@ -61,7 +58,7 @@ function InvoiceTable({
               <td className="p-3 md:p-4">
                 <button
                   onClick={() => navigate(`/invoices/${invoice.ID}`)}
-                  className="text-purple-500 hover:underline text-xs md:text-sm mr-4"
+                  className="text-purple-500 dark:text-purple-400 hover:underline text-xs md:text-sm mr-4"
                 >
                   View
                 </button>
@@ -71,7 +68,7 @@ function InvoiceTable({
                       setInvoiceToDelete(invoice.ID);
                       setShowDeleteModal(true);
                     }}
-                    className="text-red-500 hover:underline text-xs md:text-sm"
+                    className="text-red-500 dark:text-red-400 hover:underline text-xs md:text-sm"
                   >
                     Delete
                   </button>

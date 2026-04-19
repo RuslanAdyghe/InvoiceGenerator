@@ -22,11 +22,8 @@ function Profile() {
 
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/user/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-
       const data = await response.json();
       setUser(data);
     };
@@ -34,27 +31,24 @@ function Profile() {
     const fetchInvoiceStats = async () => {
       const userId = localStorage.getItem("userId");
       const token = localStorage.getItem("token");
-      
+
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/invoices/user/${userId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-
       const data = await response.json();
-      const invoices = data || []; 
+      const invoices = data || [];
 
       setInvoiceStats({
         total: invoices.length,
-        transformed: invoices.filter(inv => inv.status === "transformed").length,
-        validated: invoices.filter(inv => inv.status === "validated").length,
-      }); 
+        transformed: invoices.filter((inv) => inv.status === "transformed").length,
+        validated: invoices.filter((inv) => inv.status === "validated").length,
+      });
     };
 
-    fetchUserInfo();   
+    fetchUserInfo();
     fetchInvoiceStats();
-  }, []);   
+  }, []);
 
   const getInitials = (companyName) => {
     if (!companyName) return "?";
@@ -67,7 +61,7 @@ function Profile() {
   };
 
   const formatDate = (dateStr) => {
-    const date = new Date(dateStr); 
+    const date = new Date(dateStr);
     return date.toLocaleDateString(undefined, {
       year: "numeric",
       month: "short",
@@ -96,13 +90,16 @@ function Profile() {
     setConfirmPassword("");
   };
 
-  const inputClass = "border border-gray-300 rounded-md p-2 w-full mb-3";
+  const inputClass =
+    "border border-gray-300 dark:border-gray-600 rounded-md p-2 w-full mb-3 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-colors duration-200";
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <NavBar />
       <main className="pt-24 px-6 max-w-6xl mx-auto lg:pt-40">
         <div className="flex flex-col md:flex-row gap-8">
+
+          {/* Left column */}
           <div className="flex flex-col items-center md:items-start gap-6 md:w-1/3">
             <section className="flex flex-col items-center w-full">
               <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center mb-4">
@@ -110,57 +107,82 @@ function Profile() {
                   {getInitials(user?.companyName)}
                 </span>
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-800">{user?.companyName}</h1>
-              <p className="text-gray-400 text-sm md:text-base">{user?.email}</p>
-              <p className="text-gray-300 text-xs md:text-sm mt-1">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
+                {user?.companyName}
+              </h1>
+              <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base">
+                {user?.email}
+              </p>
+              <p className="text-gray-300 dark:text-gray-600 text-xs md:text-sm mt-1">
                 Member since: {formatDate(user?.created_at)}
               </p>
             </section>
 
-            <section className="w-full bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h2 className="font-bold text-gray-800 md:text-lg mb-4">Account Details</h2>
-              <div className="flex justify-between py-3 border-b border-gray-100">
-                <p className="text-gray-400 text-sm md:text-base">Company Name</p>
-                <p className="text-gray-800 text-sm md:text-base font-medium">{user?.companyName}</p>
+            {/* Account Details card */}
+            <section className="w-full bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+              <h2 className="font-bold text-gray-800 dark:text-white md:text-lg mb-4">
+                Account Details
+              </h2>
+              <div className="flex justify-between py-3 border-b border-gray-100 dark:border-gray-700">
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base">Company Name</p>
+                <p className="text-gray-800 dark:text-gray-100 text-sm md:text-base font-medium">
+                  {user?.companyName}
+                </p>
               </div>
-              <div className="flex justify-between py-3 border-b border-gray-100">
-                <p className="text-gray-400 text-sm md:text-base">Email</p>
-                <p className="text-gray-800 text-sm md:text-base font-medium">{user?.email}</p>
+              <div className="flex justify-between py-3 border-b border-gray-100 dark:border-gray-700">
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base">Email</p>
+                <p className="text-gray-800 dark:text-gray-100 text-sm md:text-base font-medium">
+                  {user?.email}
+                </p>
               </div>
               <div className="flex justify-between py-3">
-                <p className="text-gray-400 text-sm md:text-base">Member Since</p>
-                <p className="text-gray-800 text-sm md:text-base font-medium">{formatDate(user?.created_at)}</p>
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base">Member Since</p>
+                <p className="text-gray-800 dark:text-gray-100 text-sm md:text-base font-medium">
+                  {formatDate(user?.created_at)}
+                </p>
               </div>
             </section>
           </div>
 
+          {/* Right column */}
           <div className="flex flex-col gap-6 md:w-2/3">
+
+            {/* Stats cards */}
             <section className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 bg-white rounded-xl p-6 text-center shadow-sm border border-gray-100">
-                <p className="text-gray-400 text-sm md:text-base mb-2">Total Invoices</p>
+              <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
+                  Total Invoices
+                </p>
                 <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                   {invoiceStats.total}
                 </p>
               </div>
-              <div className="flex-1 bg-white rounded-xl p-6 text-center shadow-sm border border-gray-100">
-                <p className="text-gray-400 text-sm md:text-base mb-2">Transformed</p>
+              <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
+                  Transformed
+                </p>
                 <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                   {invoiceStats.transformed}
                 </p>
               </div>
-              <div className="flex-1 bg-white rounded-xl p-6 text-center shadow-sm border border-gray-100">
-                <p className="text-gray-400 text-sm md:text-base mb-2">Validated</p>
+              <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
+                  Validated
+                </p>
                 <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                   {invoiceStats.validated}
                 </p>
               </div>
             </section>
 
-            <section className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-              <h2 className="font-bold text-gray-800 md:text-lg mb-4">Security</h2>
+            {/* Security card */}
+            <section className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+              <h2 className="font-bold text-gray-800 dark:text-white md:text-lg mb-4">
+                Security
+              </h2>
               <button
                 onClick={() => setShowPasswordForm(!showPasswordForm)}
-                className="text-sm md:text-base text-purple-600 font-medium hover:text-purple-800 transition-colors mb-3"
+                className="text-sm md:text-base text-purple-600 dark:text-purple-400 font-medium hover:text-purple-800 dark:hover:text-purple-300 transition-colors mb-3"
               >
                 {showPasswordForm ? "Cancel" : "Change Password"}
               </button>
@@ -190,10 +212,11 @@ function Profile() {
               )}
             </section>
 
+            {/* Logout */}
             <section className="mb-12">
               <button
                 onClick={handleLogout}
-                className="w-full md:w-auto md:px-8 border border-red-300 text-red-500 rounded-full py-3 text-sm md:text-base font-medium hover:bg-red-50 transition-colors"
+                className="w-full md:w-auto md:px-8 border border-red-300 dark:border-red-800 text-red-500 dark:text-red-400 rounded-full py-3 text-sm md:text-base font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
               >
                 Logout
               </button>
@@ -203,7 +226,7 @@ function Profile() {
         </div>
       </main>
     </div>
-  )
+  );
 }
 
 export default Profile;
