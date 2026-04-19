@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Sun, Moon } from "lucide-react"
+
+import { useTheme } from "../hooks/useTheme";
 
 import logoIcon from "../assets/logo.svg";
 import hamburgerIcon from "../assets/hamburger.svg";
@@ -9,6 +12,7 @@ import logoutIcon from "../assets/logout.svg";
 function NavBar() {
   const navigate = useNavigate();
   const [menu, setMenu] = useState(false);
+  const { isDark, toggleTheme } = useTheme();
 
   const toggleMenu = () => {
     setMenu(!menu);
@@ -56,6 +60,17 @@ function NavBar() {
             >
               Profile
             </Link>
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Toggle theme"
+            >
+              {isDark ? (
+                <Sun className="w-6 h-6 text-yellow-400" />
+              ) : (
+                <Moon className="w-6 h-6 text-gray-600" />
+              )}
+            </button>
             <img
               src={logoutIcon}
               alt="Logout"
