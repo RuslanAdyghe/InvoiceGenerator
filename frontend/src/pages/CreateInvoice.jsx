@@ -1,6 +1,7 @@
 import { useState } from "react";
 import NavBar from "../components/NavBar";
 import ErrorModal from "../components/ErrorModal";
+import LoadingOverlay from "../components/LoadingOverlay";
 
 export default function CreateInvoice() {
   const [invoiceXml, setInvoiceXml] = useState("");
@@ -168,6 +169,8 @@ export default function CreateInvoice() {
   const handleSubmit = async () => {
     setSuccessMessage("");
     setInvoiceXml("");
+    setLoading(true);
+    
     const validationError = validateForm();
     if (validationError) {
       showErrorModal(validationError);
@@ -217,6 +220,12 @@ export default function CreateInvoice() {
   return (
     <>
       <NavBar />
+      
+    {(extracting || loading) && (
+      <LoadingOverlay
+        message={extracting ? "Extracting invoice data..." : "Creating invoice..."}
+      />
+    )}
 
       {showError && (
         <ErrorModal message={errorMessage} onClose={() => setShowError(false)} />
