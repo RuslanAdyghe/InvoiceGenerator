@@ -1,7 +1,7 @@
 // src/components/InvoiceFilterBar.jsx
 import { Search, X } from "lucide-react";
 
-const STATUS_OPTIONS = ["transformed", "validated", "pending", "created"];
+const STATUS_OPTIONS = ["transformed", "sent", "paid", "created"];
 
 function InvoiceFilterBar({ filters, setters, hasActiveFilters, clearFilters }) {
   const { search, statusFilter, dateFrom, dateTo, amountMin, amountMax } = filters;

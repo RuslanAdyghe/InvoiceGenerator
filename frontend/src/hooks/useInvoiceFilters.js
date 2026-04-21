@@ -39,8 +39,9 @@ export function useInvoiceFilters(invoices) {
       if (dateTo && new Date(invoice.created_at) > new Date(dateTo)) return false;
 
       // Filter by amount range
-      if (amountMin && invoice.payable_amount < parseFloat(amountMin)) return false;
-      if (amountMax && invoice.payable_amount > parseFloat(amountMax)) return false;
+const payable = invoice.invoice_data?.LegalMonetaryTotal?.PayableAmount;
+if (amountMin && payable < parseFloat(amountMin)) return false;
+if (amountMax && payable > parseFloat(amountMax)) return false;
 
       return true;
     });

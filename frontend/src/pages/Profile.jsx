@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 import NavBar from "../components/NavBar";
 
@@ -8,7 +9,10 @@ function Profile() {
   const [invoiceStats, setInvoiceStats] = useState({
     total: 0,
     transformed: 0,
-    validated: 0,
+    paid: 0,
+    needAttention:0,
+    totalAmount: 0,
+    totalPaid: 0,
   });
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [newPassword, setNewPassword] = useState("");
@@ -28,23 +32,41 @@ function Profile() {
       setUser(data);
     };
 
-    const fetchInvoiceStats = async () => {
-      const userId = localStorage.getItem("userId");
-      const token = localStorage.getItem("token");
+const fetchInvoiceStats = async () => {
+  const userId = localStorage.getItem("userId");
+  const token = localStorage.getItem("token");
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/invoices/user/${userId}`,
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-      const data = await response.json();
-      const invoices = data || [];
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/invoices/user/${userId}`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+  const data = await response.json();
+  const invoices = data || [];
 
-      setInvoiceStats({
-        total: invoices.length,
-        transformed: invoices.filter((inv) => inv.status === "transformed").length,
-        validated: invoices.filter((inv) => inv.status === "validated").length,
-      });
-    };
+const chartData = invoices
+  .filter(inv => inv.created_at && inv.invoice_data?.LegalMonetaryTotal?.PayableAmount)
+  .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+  .reduce((acc, inv) => {
+    const prev = acc.length > 0 ? acc[acc.length - 1].total : 0;
+    acc.push({
+      date: new Date(inv.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+      total: prev + Number(inv.invoice_data?.LegalMonetaryTotal?.PayableAmount ?? 0),
+    });
+    return acc;
+  }, []);
+
+  setInvoiceStats({
+    total: invoices.length,
+    transformed: invoices.filter((inv) => inv.status === "sent").length,
+    paid: invoices.filter((inv) => inv.status === "paid").length,
+    needAttention: invoices.filter((inv) => inv.status !== "paid" && inv.status !== "sent").length,
+    totalAmount: invoices.reduce((sum, inv) => sum + (Number(inv.invoice_data?.LegalMonetaryTotal?.PayableAmount) ?? 0), 0),
+    totalPaid: invoices
+      .filter((inv) => inv.status === "paid")
+      .reduce((sum, inv) => sum + (Number(inv.invoice_data?.LegalMonetaryTotal?.PayableAmount) ?? 0), 0),
+    chartData,
+  });
+}
 
     fetchUserInfo();
     fetchInvoiceStats();
@@ -59,7 +81,7 @@ function Profile() {
       .toUpperCase()
       .slice(0, 2);
   };
-
+  
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString(undefined, {
@@ -148,7 +170,7 @@ function Profile() {
           <div className="flex flex-col gap-6 md:w-2/3">
 
             {/* Stats cards */}
-            <section className="flex flex-col md:flex-row gap-4">
+           <section className="grid grid-cols-2 gap-4">
               <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                 <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
                   Total Invoices
@@ -159,7 +181,7 @@ function Profile() {
               </div>
               <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                 <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
-                  Transformed
+                  Sent & Transformed
                 </p>
                 <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                   {invoiceStats.transformed}
@@ -167,10 +189,34 @@ function Profile() {
               </div>
               <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                 <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
-                  Validated
+                  Need Attention
                 </p>
                 <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  {invoiceStats.validated}
+                  {invoiceStats.needAttention}
+                </p>
+              </div>
+              <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
+                  Paid Invoices
+                </p>
+                <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  {invoiceStats.paid}
+                </p>
+              </div>
+              <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
+                  Total Paid
+                </p>
+                <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  ${Number(invoiceStats.totalPaid ?? 0).toFixed(2)}
+                </p>
+              </div>
+              <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
+                  Total Value
+                </p>
+                <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  ${Number(invoiceStats.totalAmount ?? 0).toFixed(2)}
                 </p>
               </div>
             </section>
@@ -211,6 +257,20 @@ function Profile() {
                 </div>
               )}
             </section>
+            {invoiceStats.chartData?.length > 1 && (
+            <section className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-colors duration-300">
+              <h2 className="font-bold text-gray-800 dark:text-white md:text-lg mb-4">Invoice Value Over Time</h2>
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={invoiceStats.chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} />
+                  <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} tickFormatter={(v) => `$${v}`} />
+                  <Tooltip formatter={(value) => [`$${Number(value).toFixed(2)}`, "Total Value"]} />
+                  <Line type="monotone" dataKey="total" stroke="#a855f7" strokeWidth={2} dot={{ fill: "#a855f7", r: 3 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </section>
+          )}
 
             {/* Logout */}
             <section className="mb-12">
