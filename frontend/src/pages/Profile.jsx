@@ -9,7 +9,9 @@ function Profile() {
     total: 0,
     transformed: 0,
     paid: 0,
+    needAttention:0,
     totalAmount: 0,
+    totalPaid: 0,
   });
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [newPassword, setNewPassword] = useState("");
@@ -45,7 +47,11 @@ function Profile() {
         total: invoices.length,
         transformed: invoices.filter((inv) => inv.status === "sent").length,
         paid: invoices.filter((inv) => inv.status === "paid").length,
+        needAttention: invoices.filter((inv) => inv.status !== "paid" && inv.status !== "sent").length,
         totalAmount: invoices.reduce((sum, inv) => sum + (Number(inv.invoice_data?.LegalMonetaryTotal?.PayableAmount) ?? 0), 0),
+        totalPaid: invoices
+        .filter((inv) => inv.status === "paid")
+        .reduce((sum, inv) => sum + (Number(inv.invoice_data?.LegalMonetaryTotal?.PayableAmount) ?? 0), 0),
       });
     };
 
@@ -170,10 +176,26 @@ function Profile() {
               </div>
               <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                 <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
+                  Need Attention
+                </p>
+                <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  {invoiceStats.needAttention}
+                </p>
+              </div>
+              <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
                   Paid Invoices
                 </p>
                 <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                   {invoiceStats.paid}
+                </p>
+              </div>
+              <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
+                  Total Paid
+                </p>
+                <p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  ${Number(invoiceStats.totalPaid ?? 0).toFixed(2)}
                 </p>
               </div>
               <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
