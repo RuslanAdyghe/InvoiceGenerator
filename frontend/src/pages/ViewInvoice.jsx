@@ -20,21 +20,15 @@ function InvoiceDetail() {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/invoices/${invoiceId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          },
+          { headers: { Authorization: `Bearer ${token}` } },
         );
         const data = await response.json();
-        if (!response.ok) {
-          setError(data.error || "Failed to fetch invoice");
-          return;
-        }
+        if (!response.ok) { setError(data.error || "Failed to fetch invoice"); return; }
         setInvoice(data);
       } catch {
         setError("Failed to connect to server");
       }
     };
-
     fetchInvoice();
   }, [invoiceId]);
 
@@ -42,7 +36,7 @@ function InvoiceDetail() {
     return (
       <>
         <NavBar />
-        <main className="min-h-screen bg-gray-50 px-6 py-8 pt-24">
+        <main className="min-h-screen bg-gray-50 dark:bg-gray-900 px-6 py-8 pt-24 transition-colors duration-300">
           <p className="text-red-500 text-center">{error}</p>
         </main>
       </>
@@ -52,8 +46,8 @@ function InvoiceDetail() {
     return (
       <>
         <NavBar />
-        <main className="min-h-screen bg-gray-50 px-6 py-8 pt-24">
-          <p className="text-center text-gray-400">Loading...</p>
+        <main className="min-h-screen bg-gray-50 dark:bg-gray-900 px-6 py-8 pt-24 transition-colors duration-300">
+          <p className="text-center text-gray-400 dark:text-gray-500">Loading...</p>
         </main>
       </>
     );
@@ -64,14 +58,9 @@ function InvoiceDetail() {
     const token = localStorage.getItem("token");
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/invoices/${invoiceId}/download`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
+      { headers: { Authorization: `Bearer ${token}` } },
     );
-    if (!response.ok) {
-      alert("Failed to download XML");
-      return;
-    }
+    if (!response.ok) { alert("Failed to download XML"); return; }
     const blob = await response.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -86,18 +75,12 @@ function InvoiceDetail() {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/invoices/${invoiceId}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        },
+        { method: "DELETE", headers: { Authorization: `Bearer ${token}` } },
       );
       const data = await response.json();
-      if (!response.ok) {
-        alert(data.error || "Failed to delete invoice");
-        return;
-      }
+      if (!response.ok) { alert(data.error || "Failed to delete invoice"); return; }
       navigate("/invoices");
-    } catch (error) {
+    } catch {
       alert("Failed to connect to server");
     }
   };
@@ -109,17 +92,11 @@ function InvoiceDetail() {
         `${import.meta.env.VITE_API_URL}/invoices/${invoiceId}/status`,
         {
           method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({ status: "paid" }),
         },
       );
-      if (!response.ok) {
-        alert("Failed to update invoice status");
-        return;
-      }
+      if (!response.ok) { alert("Failed to update invoice status"); return; }
       setInvoice((prev) => ({ ...prev, status: "paid" }));
     } catch {
       alert("Failed to connect to server");
@@ -139,196 +116,123 @@ function InvoiceDetail() {
   return (
     <>
       <NavBar />
-      <main className="min-h-screen bg-gray-50 px-6 py-8 pt-24">
+      <main className="min-h-screen bg-gray-50 dark:bg-gray-900 px-6 py-8 pt-24 transition-colors duration-300">
         <div className="max-w-4xl mx-auto">
+
           <button
             onClick={() => navigate("/invoices")}
             className="text-purple-500 hover:underline text-sm mb-6 block"
           >
             ← Back to Invoices
           </button>
+
           <section className="mb-8 text-center">
             <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
               Invoice Detail
             </h1>
-            <p className="text-gray-400 text-sm">{invoice.ID}</p>
-            <span
-              className={`${statusColor(invoice.status)} px-3 py-1 rounded-full text-xs mt-2 inline-block`}
-            >
+            <p className="text-gray-400 dark:text-gray-500 text-sm">{invoice.ID}</p>
+            <span className={`${statusColor(invoice.status)} px-3 py-1 rounded-full text-xs mt-2 inline-block`}>
               {invoice.status}
             </span>
           </section>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 space-y-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 space-y-6 transition-colors duration-300">
+
             {/* General */}
             <div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-3">
-                General
-              </h2>
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">General</h2>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-400">Profile ID</span>
-                  <p className="text-gray-700">{d.ProfileID}</p>
-                </div>
-                <div>
-                  <span className="text-gray-400">Issue Date</span>
-                  <p className="text-gray-700">{d.IssueDate}</p>
-                </div>
-                <div>
-                  <span className="text-gray-400">Due Date</span>
-                  <p className="text-gray-700">{d.DueDate}</p>
-                </div>
-                <div>
-                  <span className="text-gray-400">Order Reference</span>
-                  <p className="text-gray-700">{d.OrderReference.ID}</p>
-                </div>
+                <div><span className="text-gray-400 dark:text-gray-500">Profile ID</span><p className="text-gray-700 dark:text-gray-200">{d.ProfileID}</p></div>
+                <div><span className="text-gray-400 dark:text-gray-500">Issue Date</span><p className="text-gray-700 dark:text-gray-200">{d.IssueDate}</p></div>
+                <div><span className="text-gray-400 dark:text-gray-500">Due Date</span><p className="text-gray-700 dark:text-gray-200">{d.DueDate}</p></div>
+                <div><span className="text-gray-400 dark:text-gray-500">Order Reference</span><p className="text-gray-700 dark:text-gray-200">{d.OrderReference.ID}</p></div>
               </div>
             </div>
 
-            <hr className="border-gray-100" />
+            <hr className="border-gray-100 dark:border-gray-700" />
 
             {/* Supplier & Customer */}
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-800 mb-3">
-                  Supplier
-                </h2>
-                <p className="text-sm text-gray-700">{d.Supplier.Name}</p>
-                {d.Supplier.ID && (
-                  <p className="text-sm text-gray-400">{d.Supplier.ID}</p>
-                )}
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Supplier</h2>
+                <p className="text-sm text-gray-700 dark:text-gray-200">{d.Supplier.Name}</p>
+                {d.Supplier.ID && <p className="text-sm text-gray-400 dark:text-gray-500">{d.Supplier.ID}</p>}
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-800 mb-3">
-                  Customer
-                </h2>
-                <p className="text-sm text-gray-700">{d.Customer.Name}</p>
-                {d.Customer.ID && (
-                  <p className="text-sm text-gray-400">{d.Customer.ID}</p>
-                )}
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Customer</h2>
+                <p className="text-sm text-gray-700 dark:text-gray-200">{d.Customer.Name}</p>
+                {d.Customer.ID && <p className="text-sm text-gray-400 dark:text-gray-500">{d.Customer.ID}</p>}
               </div>
             </div>
 
-            <hr className="border-gray-100" />
+            <hr className="border-gray-100 dark:border-gray-700" />
 
             {/* Delivery */}
             <div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-3">
-                Delivery
-              </h2>
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Delivery</h2>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-400">Delivery Date</span>
-                  <p className="text-gray-700">
-                    {d.Delivery.ActualDeliveryDate}
-                  </p>
-                </div>
+                <div><span className="text-gray-400 dark:text-gray-500">Delivery Date</span><p className="text-gray-700 dark:text-gray-200">{d.Delivery.ActualDeliveryDate}</p></div>
                 {d.Delivery.ActualDeliveryTime && (
-                  <div>
-                    <span className="text-gray-400">Delivery Time</span>
-                    <p className="text-gray-700">
-                      {d.Delivery.ActualDeliveryTime}
-                    </p>
-                  </div>
+                  <div><span className="text-gray-400 dark:text-gray-500">Delivery Time</span><p className="text-gray-700 dark:text-gray-200">{d.Delivery.ActualDeliveryTime}</p></div>
                 )}
               </div>
             </div>
 
-            <hr className="border-gray-100" />
+            <hr className="border-gray-100 dark:border-gray-700" />
 
-            {/* Payment Means */}
+            {/* Payment */}
             <div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-3">
-                Payment
-              </h2>
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">Payment</h2>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-400">Payment Code</span>
-                  <p className="text-gray-700">
-                    {d.PaymentMeans.PaymentMeansCode}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-gray-400">Account ID</span>
-                  <p className="text-gray-700">
-                    {d.PaymentMeans.PayeeFinancialAccount.ID}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-gray-400">Account Name</span>
-                  <p className="text-gray-700">
-                    {d.PaymentMeans.PayeeFinancialAccount.Name}
-                  </p>
-                </div>
-                <div>
-                  <div>
-                    <span className="text-gray-400">Currency</span>
-                    <p className="text-gray-700">{d.DocumentCurrencyCode}</p>
-                  </div>
-                </div>
+                <div><span className="text-gray-400 dark:text-gray-500">Payment Code</span><p className="text-gray-700 dark:text-gray-200">{d.PaymentMeans.PaymentMeansCode}</p></div>
+                <div><span className="text-gray-400 dark:text-gray-500">Account ID</span><p className="text-gray-700 dark:text-gray-200">{d.PaymentMeans.PayeeFinancialAccount.ID}</p></div>
+                <div><span className="text-gray-400 dark:text-gray-500">Account Name</span><p className="text-gray-700 dark:text-gray-200">{d.PaymentMeans.PayeeFinancialAccount.Name}</p></div>
+                <div><span className="text-gray-400 dark:text-gray-500">Currency</span><p className="text-gray-700 dark:text-gray-200">{d.DocumentCurrencyCode}</p></div>
               </div>
             </div>
 
-            <hr className="border-gray-100" />
+            <hr className="border-gray-100 dark:border-gray-700" />
 
             {/* Totals */}
             <div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
                 Totals ({d.DocumentCurrencyCode})
               </h2>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Line Extension Amount</span>
-                  <span className="text-gray-700">
-                    {d.LegalMonetaryTotal.LineExtensionAmount}
-                  </span>
+                  <span className="text-gray-400 dark:text-gray-500">Line Extension Amount</span>
+                  <span className="text-gray-700 dark:text-gray-200">{d.LegalMonetaryTotal.LineExtensionAmount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Tax Exclusive</span>
-                  <span className="text-gray-700">
-                    {d.LegalMonetaryTotal.TaxExclusiveAmount}
-                  </span>
+                  <span className="text-gray-400 dark:text-gray-500">Tax Exclusive</span>
+                  <span className="text-gray-700 dark:text-gray-200">{d.LegalMonetaryTotal.TaxExclusiveAmount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-400">Tax Inclusive</span>
-                  <span className="text-gray-700">
-                    {d.LegalMonetaryTotal.TaxInclusiveAmount}
-                  </span>
+                  <span className="text-gray-400 dark:text-gray-500">Tax Inclusive</span>
+                  <span className="text-gray-700 dark:text-gray-200">{d.LegalMonetaryTotal.TaxInclusiveAmount}</span>
                 </div>
-                <div className="flex justify-between font-semibold text-base border-t border-gray-100 pt-2">
-                  <span>Payable Amount</span>
-                  <span className="text-purple-600">
-                    {d.LegalMonetaryTotal.Currency}{" "}
-                    {d.LegalMonetaryTotal.PayableAmount}
+                <div className="flex justify-between font-semibold text-base border-t border-gray-100 dark:border-gray-700 pt-2">
+                  <span className="text-gray-800 dark:text-white">Payable Amount</span>
+                  <span className="text-purple-600 dark:text-purple-400">
+                    {d.LegalMonetaryTotal.Currency} {d.LegalMonetaryTotal.PayableAmount}
                   </span>
                 </div>
               </div>
             </div>
           </div>
+
           <div className="flex justify-between gap-2">
-            <button
-              onClick={() => setShowDeleteModal(true)}
-              className="bg-red-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
-            >
+            <button onClick={() => setShowDeleteModal(true)} className="bg-red-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5">
               Delete
             </button>
             <div className="flex gap-2">
-              <button
-                onClick={handleMarkAsPaid}
-                className="bg-green-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
-              >
+              <button onClick={handleMarkAsPaid} className="bg-green-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5">
                 Mark as Paid
               </button>
-              <button
-                onClick={handleDownload}
-                className="bg-purple-600 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
-              >
+              <button onClick={handleDownload} className="bg-purple-600 text-white text-sm font-medium rounded-md px-4 py-3 mt-5">
                 Download XML
               </button>
-              <button
-                onClick={handleDownloadPDF}
-                className="bg-blue-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5"
-              >
+              <button onClick={handleDownloadPDF} className="bg-blue-500 text-white text-sm font-medium rounded-md px-4 py-3 mt-5">
                 Download PDF
               </button>
             </div>
@@ -338,10 +242,7 @@ function InvoiceDetail() {
         {showDeleteModal && (
           <DeleteModal
             invoiceId={invoiceId}
-            onConfirm={() => {
-              handleDelete();
-              setShowDeleteModal(false);
-            }}
+            onConfirm={() => { handleDelete(); setShowDeleteModal(false); }}
             onCancel={() => setShowDeleteModal(false)}
           />
         )}

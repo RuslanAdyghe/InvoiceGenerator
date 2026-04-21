@@ -169,13 +169,14 @@ export default function CreateInvoice() {
   const handleSubmit = async () => {
     setSuccessMessage("");
     setInvoiceXml("");
-    setLoading(true);
+    
     
     const validationError = validateForm();
     if (validationError) {
       showErrorModal(validationError);
       return;
     }
+    setLoading(true);
     const userId = localStorage.getItem("userId");
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/invoices`, {
