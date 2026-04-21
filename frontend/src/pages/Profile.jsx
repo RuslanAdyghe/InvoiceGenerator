@@ -8,7 +8,8 @@ function Profile() {
   const [invoiceStats, setInvoiceStats] = useState({
     total: 0,
     transformed: 0,
-    validated: 0,
+    paid: 0,
+    totalAmount: 0,
   });
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [newPassword, setNewPassword] = useState("");
@@ -38,11 +39,13 @@ function Profile() {
       );
       const data = await response.json();
       const invoices = data || [];
-
+      console.log(invoices);
+      console.log(invoices.map(inv => inv.invoice_data?.LegalMonetaryTotal?.PayableAmount));
       setInvoiceStats({
         total: invoices.length,
-        transformed: invoices.filter((inv) => inv.status === "transformed").length,
-        validated: invoices.filter((inv) => inv.status === "validated").length,
+        transformed: invoices.filter((inv) => inv.status === "sent").length,
+        paid: invoices.filter((inv) => inv.status === "paid").length,
+        totalAmount: invoices.reduce((sum, inv) => sum + (Number(inv.invoice_data?.LegalMonetaryTotal?.PayableAmount) ?? 0), 0),
       });
     };
 
@@ -148,7 +151,7 @@ function Profile() {
           <div className="flex flex-col gap-6 md:w-2/3">
 
             {/* Stats cards */}
-            <section className="flex flex-col md:flex-row gap-4">
+           <section className="grid grid-cols-2 gap-4">
               <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                 <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
                   Total Invoices
@@ -159,7 +162,7 @@ function Profile() {
               </div>
               <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                 <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
-                  Transformed
+                  Sent & Transformed
                 </p>
                 <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                   {invoiceStats.transformed}
@@ -167,11 +170,19 @@ function Profile() {
               </div>
               <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                 <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
-                  Validated
+                  Paid Invoices
                 </p>
                 <p className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  {invoiceStats.validated}
+                  {invoiceStats.paid}
                 </p>
+              </div>
+              <div className="flex-1 bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
+                <p className="text-gray-400 dark:text-gray-500 text-sm md:text-base mb-2">
+                  Total Value
+                </p>
+<p className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+  ${Number(invoiceStats.totalAmount ?? 0).toFixed(2)}
+</p>
               </div>
             </section>
 
